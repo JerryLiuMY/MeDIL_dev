@@ -27,16 +27,16 @@ def pipeline(num_obs, edge_prob, num_samps=1000, seed=0):
 
     np.random.seed(seed)
     biadj_mat = rand_biadj_mat(num_obs, edge_prob)
-    num_latent = biadj_mat.shape[0]
-
     samples, cov = sample_from_minMCM(biadj_mat, num_samps=num_samps)
+
+    num_latent = biadj_mat.shape[0]
     biadj_mat_learned, shd, ushd, num_latent_recon = estimation(biadj_mat, num_obs, num_latent, samples)
 
     return num_latent, shd, ushd, num_latent_recon
 
 
 def experiment(biadj_mat, num_runs, num_samps):
-    """ Experiment for verifying the SHD and diff for
+    """ Experiment for verifying the SHD, USHD, diff and time
     Parameters
     ----------
     biadj_mat: adjacency matrix of the generated graph

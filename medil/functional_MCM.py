@@ -69,4 +69,3 @@ def sample_from_minMCM(minMCM, num_samps=1000, rng=default_rng(0)):
     samples = rng.multivariate_normal(np.zeros(len(cov)), cov, num_samps)
 
     return samples, minMCM
-
