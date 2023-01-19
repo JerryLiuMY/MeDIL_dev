@@ -12,9 +12,9 @@ class VariationalAutoencoder(nn.Module):
     def forward(self, x):
         mu, logvar = self.encoder(x)
         latent = self.latent_sample(mu, logvar)
-        x_rec = self.decoder(latent)
+        x_recon = self.decoder(latent)
 
-        return x_rec, mu, logvar
+        return x_recon, mu, logvar
 
     def latent_sample(self, mu, logvar):
         # the re-parameterization trick

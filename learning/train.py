@@ -6,12 +6,13 @@ import torch
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
-def train_vae(m, n, train_loader, biadj_mat):
+def train_vae(m, n, train_loader, biadj_mat, cov_train):
     """ Training VAE with the specified image dataset
     :param m: dimension of the latent variable
     :param n: dimension of the observed variable
     :param train_loader: training image dataset loader
     :param biadj_mat: the adjacency matrix of the directed graph
+    :param cov_train: covariance matrix for the training set
     :return: trained model and training loss history
     """
 
@@ -35,8 +36,8 @@ def train_vae(m, n, train_loader, biadj_mat):
 
         for x_batch, _ in train_loader:
             x_batch = x_batch.to(device)
-            recon_batch, logs2_batch, mu_batch, logvar_batch = model(x_batch)
-            loss = elbo_gaussian(x_batch, recon_batch, logs2_batch, mu_batch, logvar_batch, beta)
+            recon_batch, mu_batch, logvar_batch = model(x_batch)
+            loss = elbo_gaussian(x_batch, recon_batch, cov_train, mu_batch, logvar_batch, beta)
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
@@ -57,10 +58,11 @@ def train_vae(m, n, train_loader, biadj_mat):
     return model, train_loss
 
 
-def valid_vae(model, valid_loader):
+def valid_vae(model, valid_loader, cov_valid):
     """ Training VAE with the specified image dataset
     :param model: trained VAE model
     :param valid_loader: validation image dataset loader
+    :param cov_valid: covariance matrix for the validation set
     :return: validation loss
     """
 
@@ -73,8 +75,8 @@ def valid_vae(model, valid_loader):
     for x_batch, _ in valid_loader:
         with torch.no_grad():
             x_batch = x_batch.to(device)
-            recon_batch, logs2_batch, mu_batch, logvar_batch = model(x_batch)
-            loss = elbo_gaussian(x_batch, recon_batch, logs2_batch, mu_batch, logvar_batch, beta)
+            recon_batch, mu_batch, logvar_batch = model(x_batch)
+            loss = elbo_gaussian(x_batch, recon_batch, cov_valid, mu_batch, logvar_batch, beta)
 
             # update loss and nbatch
             valid_loss += loss.item()
