@@ -2,6 +2,23 @@ import numpy as np
 import cdt
 
 
+def permute_graph(biadj_mat_recon, perm):
+    """ Find permutation of the graph
+    Parameters
+    ----------
+    biadj_mat_recon: learned directed adjacency matrix
+    perm: number of observed variables
+
+    Returns
+    -------
+    biadj_mat_recon: learned directed adjacency matrix with a given permutation
+    """
+
+    biadj_mat_perm = biadj_mat_recon[perm, :]
+
+    return biadj_mat_perm
+
+
 def expand_recon(biadj_mat_recon, num_obs, num_latent):
     """ Expand the reconstructed directed graph
     Parameters
@@ -37,23 +54,6 @@ def contract_recon(biadj_mat_recon, comb):
     biadj_mat_recon_ = biadj_mat_recon[comb, :]
 
     return biadj_mat_recon_
-
-
-def permute_graph(biadj_mat_recon, perm):
-    """ Find permutation of the graph
-    Parameters
-    ----------
-    biadj_mat_recon: learned directed adjacency matrix
-    perm: number of observed variables
-
-    Returns
-    -------
-    biadj_mat_recon: learned directed adjacency matrix with a given permutation
-    """
-
-    biadj_mat_perm = biadj_mat_recon[perm, :]
-
-    return biadj_mat_perm
 
 
 def shd_func(g1, g2):
