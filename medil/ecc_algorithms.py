@@ -8,7 +8,7 @@ def find_clique_min_cover(graph, verbose=False):
 
     Parameters
     ----------
-    graph : 2d numpy array 
+    graph : np.array
             Adjacency matrix for undirected graph.
 
     verbose : bool, optional
@@ -16,8 +16,8 @@ def find_clique_min_cover(graph, verbose=False):
 
     Returns
     -------
-    the_cover : 2d numpy array
-                Biadjacency matrix representing edge clique cover.
+    the_cover: np.array
+               Biadjacency matrix representing edge clique cover.
 
     See Also
     --------
@@ -60,7 +60,8 @@ def find_clique_min_cover(graph, verbose=False):
 def branch(graph, k_num_cliques, the_cover, iteration, iteration_max):
     """Helper function for `find_clique_min_cover()`.
 
-    Describing the solution search space as a tree, this function tests whether the given node is a solution, and it branches if not,
+    Describing the solution search space as a tree.
+    This function tests whether the given node is a solution, and it branches if not.
 
     Parameters
     ----------
@@ -70,7 +71,7 @@ def branch(graph, k_num_cliques, the_cover, iteration, iteration_max):
     k_num_cliques : int
                     Current depth of search; number of cliques in cover being testet for solution.
 
-    the_cover : 2d numpy array
+    the_cover : np.array
                 Biadjacency matrix representing (possibly partial) edge clique cover.
 
     iteration: current iteration
@@ -133,7 +134,7 @@ def max_cliques(nbrhood):
 
     Parameters
     ----------
-    nbrhood : 2d numpy array
+    nbrhood : np.array
             Adjacency matrix for undirected (sub)graph.
 
     Returns
@@ -146,7 +147,8 @@ def max_cliques(nbrhood):
     Pieced together from nx.from_numpy_array and nx.find_cliques, which
     is output sensitive.
 
-    """    
+    """
+
     if len(nbrhood) == 0:
         return
     
