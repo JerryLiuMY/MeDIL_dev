@@ -38,19 +38,26 @@ def pipeline(num_obs, edge_prob, seed=0):
 
     # learn MeDIL model
     num_latent = biadj_mat.shape[0]
-    biadj_mat_learned, shd, ushd, num_latent_recon = estimation(biadj_mat, num_obs, num_latent, samples)
-    m, n = biadj_mat_learned.shape
+    biadj_mat_medil, _, _, _ = estimation(biadj_mat, num_obs, num_latent, samples)
+    m, n = biadj_mat_medil.shape
 
-    # train generative models
+    # define training sample
     train_samples, _ = sample_from_minMCM(biadj_mat, num_samps=num_train)
     train_dataset = TensorDataset(torch.tensor(train_samples))
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=False)
-    model, train_loss = train_vae(m, n, train_loader, biadj_mat_learned)
 
-    # perform validation on generative models
+    # define validation sample
     valid_samples, _ = sample_from_minMCM(biadj_mat, num_samps=num_valid)
     valid_dataset = TensorDataset(torch.tensor(valid_samples))
     valid_loader = DataLoader(valid_dataset, batch_size=batch_size, shuffle=False)
-    valid_loss = valid_vae(model, valid_loader)
 
-    return valid_loss
+    # train & validate MeDIL VAE generative models
+    model_medil, _ = train_vae(m, n, train_loader, biadj_mat_medil)
+    loss_medil = valid_vae(model_medil, valid_loader)
+
+    # train & validate Vanilla VAE generative models
+    biadj_mat_vanilla = np.ones((m, n))
+    model_vanilla, _ = train_vae(m, n, train_loader, biadj_mat_vanilla)
+    loss_vanilla = valid_vae(model_vanilla, valid_loader)
+
+    return loss_medil, loss_vanilla

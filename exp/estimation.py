@@ -16,7 +16,7 @@ def estimation(biadj_mat, num_obs, num_latent, samples):
 
     Returns
     -------
-    biadj_mat_learned: learned directed graph in the form of adjacency matrix
+    biadj_mat_medil: learned directed graph in the form of adjacency matrix
     shd: structural hamming distance (directed graph)
     ushd: structural hamming distance (undirected graph)
     num_latent_recon: number of reconstructed latent variables
@@ -45,14 +45,14 @@ def estimation(biadj_mat, num_obs, num_latent, samples):
         ushd_list = [_[1] for _ in shd_learned_list]
         learned_list = [_[2] for _ in shd_learned_list]
         idx = np.argmin(shd_list)
-        shd, ushd, biadj_mat_learned = shd_list[idx], ushd_list[idx], learned_list[idx]
+        shd, ushd, biadj_mat_medil = shd_list[idx], ushd_list[idx], learned_list[idx]
     elif num_latent > num_latent_recon:
         biadj_mat_recon = expand_recon(biadj_mat_recon, num_obs, num_latent)
-        shd, ushd, biadj_mat_learned = find_learned(biadj_mat, biadj_mat_recon)
+        shd, ushd, biadj_mat_medil = find_learned(biadj_mat, biadj_mat_recon)
     else:
-        shd, ushd, biadj_mat_learned = find_learned(biadj_mat, biadj_mat_recon)
+        shd, ushd, biadj_mat_medil = find_learned(biadj_mat, biadj_mat_recon)
 
-    return biadj_mat_learned, shd, ushd, num_latent_recon
+    return biadj_mat_medil, shd, ushd, num_latent_recon
 
 
 def find_learned(biadj_mat, biadj_mat_recon):
