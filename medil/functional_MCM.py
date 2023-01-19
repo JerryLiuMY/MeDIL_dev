@@ -37,12 +37,13 @@ def sample_from_minMCM(minMCM, num_samps=1000, rng=default_rng(0)):
     Parameters
     ----------
     minMCM: adjacency matrix of the minMCM
-    num_samps
-    rng
+    num_samps: number of samples
+    rng: type of random generator
 
     Returns
     -------
-
+    samples: samples
+    cov: covariance matrix
     """
 
     if minMCM.dtype == bool:
@@ -68,4 +69,4 @@ def sample_from_minMCM(minMCM, num_samps=1000, rng=default_rng(0)):
 
     samples = rng.multivariate_normal(np.zeros(len(cov)), cov, num_samps)
 
-    return samples, minMCM
+    return samples, cov
