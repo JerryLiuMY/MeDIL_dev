@@ -1,4 +1,4 @@
-from learning.linear_mask import LinearMask
+from learning.linear_mask import SparseLinear
 import torch.nn as nn
 import torch
 
@@ -66,7 +66,7 @@ class Decoder(Block):
         super(Decoder, self).__init__(m, n)
 
         # decoder layer -- estimate mean
-        self.dec_mean = LinearMask(in_features=self.latent_dim, out_features=self.output_dim, mask=mask)
+        self.dec_mean = SparseLinear(in_features=self.latent_dim, out_features=self.output_dim, mask=mask)
 
     def forward(self, z):
         # linear layer

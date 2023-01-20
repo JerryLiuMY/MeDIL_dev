@@ -25,7 +25,7 @@ def train_vae(m, n, train_loader, biadj_mat, cov_train):
     model = VariationalAutoencoder(m, n, mask)
     model = model.to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-5)
-    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 1, gamma=0.8)
+    scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 50, gamma=0.90)
     num_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Number of parameters: {num_params}")
 

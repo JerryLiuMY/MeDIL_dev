@@ -6,10 +6,10 @@ import math
 import torch
 
 
-class LinearMask(nn.Module):
+class SparseLinear(nn.Module):
     def __init__(self, in_features, out_features, mask, bias=True, device=None, dtype=None):
         factory_kwargs = {"device": device, "dtype": dtype}
-        super(LinearMask, self).__init__()
+        super(SparseLinear, self).__init__()
         self.in_features = in_features
         self.out_features = out_features
         self.mask = mask
@@ -29,8 +29,7 @@ class LinearMask(nn.Module):
             init.uniform_(self.bias, -bound, bound)
 
     def forward(self, input):
-        print(self.weight.shape)
-        print(self.mask.shape)
+        # masked linear layer
         return F.linear(input, self.weight * self.mask, self.bias)
 
     def extra_repr(self):
