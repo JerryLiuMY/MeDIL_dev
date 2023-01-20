@@ -56,7 +56,7 @@ def pipeline(num_obs, edge_prob, seed=0):
     loss_medil = valid_vae(model_medil, valid_loader, cov_valid)
 
     # train & validate Vanilla VAE generative models
-    biadj_mat_vanilla = np.zeros((m, n))
+    biadj_mat_vanilla = np.ones((m, n))
     model_vanilla, _ = train_vae(m, n, train_loader, biadj_mat_vanilla, cov_train)
     loss_vanilla = valid_vae(model_vanilla, valid_loader, cov_valid)
 
