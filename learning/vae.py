@@ -4,10 +4,10 @@ import torch
 
 
 class VariationalAutoencoder(nn.Module):
-    def __init__(self, m, n, biadj_mat):
+    def __init__(self, m, n, mask):
         super(VariationalAutoencoder, self).__init__()
         self.encoder = Encoder(m, n)
-        self.decoder = Decoder(m, n, biadj_mat)
+        self.decoder = Decoder(m, n, mask)
 
     def forward(self, x):
         mu, logvar = self.encoder(x)
@@ -62,12 +62,11 @@ class Encoder(Block):
 
 
 class Decoder(Block):
-    def __init__(self, m, n, biadj_mat):
+    def __init__(self, m, n, mask):
         super(Decoder, self).__init__(m, n)
-        self.mask = biadj_mat.astype(float)
 
         # decoder layer -- estimate mean
-        self.dec_mean = LinearMask(in_features=self.latent_dim, out_features=self.output_dim, mask=self.mask)
+        self.dec_mean = LinearMask(in_features=self.latent_dim, out_features=self.output_dim, mask=mask)
 
     def forward(self, z):
         # linear layer

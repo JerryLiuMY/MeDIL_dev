@@ -1,5 +1,5 @@
-from vae import VariationalAutoencoder
-from params import train_dict
+from learning.vae import VariationalAutoencoder
+from learning.params import train_dict
 from datetime import datetime
 import numpy as np
 import torch
@@ -20,7 +20,9 @@ def train_vae(m, n, train_loader, biadj_mat, cov_train):
     epoch, lr, beta = train_dict["epoch"], train_dict["lr"], train_dict["beta"]
 
     # building VAE
-    model = VariationalAutoencoder(m, n, biadj_mat)
+    mask = biadj_mat.T.astype("float32")
+    mask = torch.tensor(mask).to(device)
+    model = VariationalAutoencoder(m, n, mask)
     model = model.to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-5)
     scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 1, gamma=0.8)
@@ -30,6 +32,9 @@ def train_vae(m, n, train_loader, biadj_mat, cov_train):
     # training loop
     model.train()
     train_loss = []
+    cov_train = cov_train.astype("float32")
+    cov_train = torch.tensor(cov_train).to(device)
+
     for epoch in range(epoch):
         print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Training on epoch {epoch}...")
         epoch_loss, nbatch = 0., 0
@@ -72,6 +77,9 @@ def valid_vae(model, valid_loader, cov_valid):
     # set to evaluation mode
     model.eval()
     valid_loss, nbatch = 0., 0
+    cov_valid = cov_valid.astype("float32")
+    cov_valid = torch.tensor(cov_valid).to(device)
+
     for x_batch, _ in valid_loader:
         with torch.no_grad():
             x_batch = x_batch.to(device)
@@ -89,11 +97,11 @@ def valid_vae(model, valid_loader, cov_valid):
     return valid_loss
 
 
-def elbo_gaussian(x, x_recon, logs2, mu, logvar, beta):
+def elbo_gaussian(x, x_recon, cov, mu, logvar, beta):
     """ Calculating loss for variational autoencoder
     :param x: original image
     :param x_recon: reconstruction in the output layer
-    :param logs2: log of the variance in the output layer
+    :param cov: covariance matrix of the data distribution
     :param mu: mean in the fitted variational distribution
     :param logvar: log of the variance in the variational distribution
     :param beta: beta
@@ -104,9 +112,10 @@ def elbo_gaussian(x, x_recon, logs2, mu, logvar, beta):
     kl_div = - 0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
 
     # reconstruction loss
-    recon_loss = - torch.sum(
-        logs2.mul(x.size(dim=1)/2) + torch.norm(x - x_recon, 2, dim=1).pow(2).div(logs2.exp().mul(2))
-    )
+    diff = x - x_recon
+    recon_loss = torch.sum(
+        torch.det(cov) + torch.diagonal(torch.mm(torch.mm(diff, torch.inverse(cov)), torch.transpose(diff, 0, 1)))
+    ).mul(-1/2)
 
     # loss
     loss = - beta * kl_div + recon_loss
