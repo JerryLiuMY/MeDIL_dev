@@ -1,7 +1,7 @@
 from medil.functional_MCM import rand_biadj_mat
 from medil.functional_MCM import sample_from_minMCM
 from exp.estimation import estimation
-from learning.train import train_vae, valid_vae
+from learning.train import train_vae
 from learning.params import params_dict
 from learning.data_loader import load_dataset
 from datetime import datetime
@@ -9,11 +9,11 @@ import numpy as np
 import time
 
 
-def pipeline(num_obs, edge_prob, seed=0):
+def pipeline(dim_obs, edge_prob, seed=0):
     """ Pipeline function for estimating the shd and number of reconstructed latent
     Parameters
     ----------
-    num_obs: number of observed variables
+    dim_obs: dimension of the observed space
     edge_prob: edge probability
     seed: random seed
 
@@ -35,13 +35,13 @@ def pipeline(num_obs, edge_prob, seed=0):
     # create biadj_mat and samples
     print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Sampling from biadj_mat")
     time.sleep(1)
-    biadj_mat = rand_biadj_mat(num_obs, edge_prob)
+    biadj_mat = rand_biadj_mat(dim_obs, edge_prob)
     samples, _ = sample_from_minMCM(biadj_mat, num_samps=num_samps)
 
     # learn MeDIL model
     print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Learning the MeDIL model")
     num_latent = biadj_mat.shape[0]
-    biadj_mat_medil, _, _, _ = estimation(biadj_mat, num_obs, num_latent, samples)
+    biadj_mat_medil, _, _, _ = estimation(biadj_mat, dim_obs, num_latent, samples)
 
     # define training sample
     print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Preparing training and validation data for VAE")
@@ -51,13 +51,17 @@ def pipeline(num_obs, edge_prob, seed=0):
     cov_valid = cov_valid[num_latent:, num_latent:]
 
     # train & validate MeDIL VAE generative models
+    print(cov_train)
+    print(cov_valid)
     m, n = biadj_mat_medil.shape
-    model_medil, _ = train_vae(m, n, train_loader, biadj_mat_medil, cov_train)
-    loss_medil = valid_vae(model_medil, valid_loader, cov_valid)
+    medil_output = train_vae(m, n, biadj_mat_medil, train_loader, valid_loader, cov_train, cov_valid)
+    model_medil, train_loss_medil, valid_loss_medil = medil_output
+    loss_medil = [train_loss_medil, valid_loss_medil]
 
     # train & validate Vanilla VAE generative models
     biadj_mat_vanilla = np.ones((m, n))
-    model_vanilla, _ = train_vae(m, n, train_loader, biadj_mat_vanilla, cov_train)
-    loss_vanilla = valid_vae(model_vanilla, valid_loader, cov_valid)
+    vanilla_output = train_vae(m, n, biadj_mat_vanilla, train_loader, valid_loader, cov_train, cov_valid)
+    model_vanilla, train_loss_vanilla, valid_loss_vanilla = vanilla_output
+    loss_vanilla = [train_loss_vanilla, valid_loss_vanilla]
 
     return loss_medil, loss_vanilla
