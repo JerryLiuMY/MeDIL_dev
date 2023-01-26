@@ -55,8 +55,8 @@ def train_vae(m, n, biadj_mat, train_loader, valid_loader, cov_train, cov_valid)
             train_ls += loss.item() / batch_size
             nbatch += 1
 
-        for p in model.parameters():
-            print(p.grad)
+        # for p in model.parameters():
+        #     print(p.grad)
 
         # finish training epoch
         scheduler.step()
