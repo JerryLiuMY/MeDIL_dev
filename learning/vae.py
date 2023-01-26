@@ -1,4 +1,4 @@
-from learning.linear_mask import SparseLinear
+from learning.sparse_linear import SparseLinear
 import torch.nn as nn
 import torch
 
