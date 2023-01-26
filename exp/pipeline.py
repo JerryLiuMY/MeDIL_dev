@@ -1,4 +1,3 @@
-from medil.functional_MCM import rand_biadj_mat
 from medil.functional_MCM import sample_from_minMCM
 from exp.estimation import estimation
 from learning.train import train_vae
@@ -9,12 +8,11 @@ import numpy as np
 import time
 
 
-def pipeline(dim_obs, edge_prob, seed=0):
+def pipeline(biadj_mat, seed=0):
     """ Pipeline function for estimating the shd and number of reconstructed latent
     Parameters
     ----------
-    dim_obs: dimension of the observed space
-    edge_prob: edge probability
+    biadj_mat: adjacency matrix of the bipartite graph
     seed: random seed
 
     Returns
@@ -35,7 +33,7 @@ def pipeline(dim_obs, edge_prob, seed=0):
     # create biadj_mat and samples
     print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Sampling from biadj_mat")
     time.sleep(1)
-    biadj_mat = rand_biadj_mat(dim_obs, edge_prob)
+    dim_obs = biadj_mat.shape[1]
     samples, _ = sample_from_minMCM(biadj_mat, num_samps=num_samps)
 
     # learn MeDIL model
@@ -51,10 +49,9 @@ def pipeline(dim_obs, edge_prob, seed=0):
     cov_valid = cov_valid[num_latent:, num_latent:]
 
     # train & validate MeDIL VAE generative models
-    print(cov_train)
-    print(cov_valid)
     m, n = biadj_mat_medil.shape
-    medil_output = train_vae(m, n, biadj_mat_medil, train_loader, valid_loader, cov_train, cov_valid)
+    # medil_output = train_vae(m, n, biadj_mat_medil, train_loader, valid_loader, cov_train, cov_valid)
+    medil_output = train_vae(m, n, biadj_mat, train_loader, valid_loader, cov_train, cov_valid)
     model_medil, train_loss_medil, valid_loss_medil = medil_output
     loss_medil = [train_loss_medil, valid_loss_medil]
 
@@ -64,4 +61,4 @@ def pipeline(dim_obs, edge_prob, seed=0):
     model_vanilla, train_loss_vanilla, valid_loss_vanilla = vanilla_output
     loss_vanilla = [train_loss_vanilla, valid_loss_vanilla]
 
-    return loss_medil, loss_vanilla
+    return loss_medil, loss_vanilla, biadj_mat_medil
