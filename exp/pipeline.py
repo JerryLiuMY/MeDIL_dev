@@ -55,7 +55,7 @@ def pipeline(biadj_mat, seed=0):
     loss_true = [train_loss_true, valid_loss_true]
 
     # train & validate MeDIL VAE
-    medil_output = train_vae(m, n, biadj_mat, train_loader, valid_loader, cov_train, cov_valid)
+    medil_output = train_vae(m, n, biadj_mat_medil, train_loader, valid_loader, cov_train, cov_valid)
     model_medil, train_loss_medil, valid_loss_medil = medil_output
     loss_medil = [train_loss_medil, valid_loss_medil]
 
