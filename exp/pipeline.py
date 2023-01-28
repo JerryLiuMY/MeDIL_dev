@@ -48,17 +48,21 @@ def pipeline(biadj_mat, seed=0):
     cov_train = cov_train[num_latent:, num_latent:]
     cov_valid = cov_valid[num_latent:, num_latent:]
 
-    # train & validate MeDIL VAE generative models
-    m, n = biadj_mat_medil.shape
-    # medil_output = train_vae(m, n, biadj_mat_medil, train_loader, valid_loader, cov_train, cov_valid)
+    # train & validate Ground Truth VAE
+    m, n = biadj_mat.shape
+    true_output = train_vae(m, n, biadj_mat, train_loader, valid_loader, cov_train, cov_valid)
+    model_true, train_loss_true, valid_loss_true = true_output
+    loss_true = [train_loss_true, valid_loss_true]
+
+    # train & validate MeDIL VAE
     medil_output = train_vae(m, n, biadj_mat, train_loader, valid_loader, cov_train, cov_valid)
     model_medil, train_loss_medil, valid_loss_medil = medil_output
     loss_medil = [train_loss_medil, valid_loss_medil]
 
-    # train & validate Vanilla VAE generative models
+    # train & validate Vanilla VA
     biadj_mat_vanilla = np.ones((m, n))
     vanilla_output = train_vae(m, n, biadj_mat_vanilla, train_loader, valid_loader, cov_train, cov_valid)
     model_vanilla, train_loss_vanilla, valid_loss_vanilla = vanilla_output
     loss_vanilla = [train_loss_vanilla, valid_loss_vanilla]
 
-    return loss_medil, loss_vanilla, biadj_mat_medil
+    return loss_true, loss_medil, loss_vanilla, biadj_mat_medil
