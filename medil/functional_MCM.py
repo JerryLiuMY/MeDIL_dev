@@ -5,7 +5,7 @@ import numpy as np
 
 
 def rand_biadj_mat(num_obs, edge_prob, rng=default_rng(0)):
-    """ Generate random undirected graph over observed variables
+    """Generate random undirected graph over observed variables
     Parameters
     ----------
     num_obs: dimension of the observed space
@@ -33,7 +33,7 @@ def rand_biadj_mat(num_obs, edge_prob, rng=default_rng(0)):
 
 
 def sample_from_minMCM(minMCM, num_samps=1000, rng=default_rng(0)):
-    """ Sample from the minMCM graph: minMCM should either be the binary bi-adjacency matrix or covariance matrix
+    """Sample from the minMCM graph: minMCM should either be the binary bi-adjacency matrix or covariance matrix
     Parameters
     ----------
     minMCM: adjacency matrix of the minMCM
@@ -55,7 +55,7 @@ def sample_from_minMCM(minMCM, num_samps=1000, rng=default_rng(0)):
         idcs = np.argwhere(biadj_mat)
         idcs[:, 1] += num_latent
 
-        weights = (rng.random(num_edges) - 1) * 2
+        weights = (rng.random(num_edges) * 0.75) + 0.25
         weights[rng.choice((True, False), num_edges)] *= -1
 
         precision = np.eye(num_latent + num_obs, dtype=float)
