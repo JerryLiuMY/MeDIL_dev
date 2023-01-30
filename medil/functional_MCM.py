@@ -49,13 +49,13 @@ def sample_from_minMCM(minMCM, num_samps=1000, rng=default_rng(0)):
     if minMCM.dtype == bool:
         biadj_mat = minMCM
 
-        # generate random weights in [-2, 2] \ {0}
+        # generate random weights in +-[0.5, 2]
         num_edges = biadj_mat.sum()
         num_latent, num_obs = biadj_mat.shape
         idcs = np.argwhere(biadj_mat)
         idcs[:, 1] += num_latent
 
-        weights = (rng.random(num_edges) * 0.75) + 0.25
+        weights = (rng.random(num_edges) * 1.5) + 0.5
         weights[rng.choice((True, False), num_edges)] *= -1
 
         precision = np.eye(num_latent + num_obs, dtype=float)
