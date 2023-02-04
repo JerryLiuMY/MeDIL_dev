@@ -33,45 +33,49 @@ def train_vae(m, n, biadj_mat, train_loader, valid_loader, cov_train, cov_valid)
 
     # training loop
     model.train()
-    train_loss = []
-    valid_loss = []
+    train_elbo, train_error = [], []
+    valid_elbo, valid_error = [], []
     cov_train = cov_train.astype("float32")
     cov_train = torch.tensor(cov_train).to(device)
 
     for epoch in range(epoch):
         print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Training on epoch {epoch}...")
-        train_ls, nbatch = 0., 0
+        train_lb, train_er, nbatch = 0., 0., 0
 
         for x_batch, _ in train_loader:
             batch_size = x_batch.shape[0]
             x_batch = x_batch.to(device)
             recon_batch, mu_batch, logvar_batch = model(x_batch)
             loss = elbo_gaussian(x_batch, recon_batch, cov_train, mu_batch, logvar_batch, beta)
+            error = recon_error(x_batch, recon_batch, cov_train, weighted=False)
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
 
             # update loss and nbatch
-            train_ls += loss.item() / batch_size
+            train_lb += loss.item() / batch_size
+            train_er += error.item() / batch_size
             nbatch += 1
-
-        # for p in model.parameters():
-        #     print(p.grad)
 
         # finish training epoch
         scheduler.step()
-        train_ls = train_ls / nbatch
-        train_loss.append(train_ls)
-        print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Finish training epoch {epoch} with loss {train_ls}")
+        train_lb = train_lb / nbatch
+        train_er = train_er / nbatch
+        train_elbo.append(train_lb)
+        train_error.append(train_er)
+        print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Finish training epoch {epoch} with loss {train_lb}")
 
         # append validation loss
-        valid_ls = valid_vae(model, valid_loader, cov_valid)
-        valid_loss.append(valid_ls)
+        valid_lb, valid_er = valid_vae(model, valid_loader, cov_valid)
+        valid_elbo.append(valid_lb)
+        valid_error.append(valid_er)
 
-    train_loss = np.array(train_loss)
-    valid_loss = np.array(valid_loss)
+    train_elbo, train_error = np.array(train_elbo), np.array(train_error)
+    valid_elbo, valid_error = np.array(valid_elbo), np.array(valid_error)
+    elbo = [train_elbo, valid_elbo]
+    error = [train_error, valid_error]
 
-    return train_loss, valid_loss
+    return elbo, error
 
 
 def valid_vae(model, valid_loader, cov_valid):
@@ -87,7 +91,7 @@ def valid_vae(model, valid_loader, cov_valid):
 
     # set to evaluation mode
     model.eval()
-    valid_ls, nbatch = 0., 0
+    valid_lb, valid_er, nbatch = 0., 0., 0
     cov_valid = cov_valid.astype("float32")
     cov_valid = torch.tensor(cov_valid).to(device)
 
@@ -97,16 +101,19 @@ def valid_vae(model, valid_loader, cov_valid):
             x_batch = x_batch.to(device)
             recon_batch, mu_batch, logvar_batch = model(x_batch)
             loss = elbo_gaussian(x_batch, recon_batch, cov_valid, mu_batch, logvar_batch, beta)
+            error = recon_error(x_batch, recon_batch, cov_valid, weighted=False)
 
             # update loss and nbatch
-            valid_ls += loss.item() / batch_size
+            valid_lb += loss.item() / batch_size
+            valid_er += error.item() / batch_size
             nbatch += 1
 
     # report validation loss
-    valid_ls = valid_ls / nbatch
-    print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Finish validation with loss {valid_ls}")
+    valid_lb = valid_lb / nbatch
+    valid_er = valid_er / nbatch
+    print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Finish validation with loss {valid_lb}")
 
-    return valid_ls
+    return valid_lb, valid_er
 
 
 def elbo_gaussian(x, x_recon, cov, mu, logvar, beta):
@@ -129,7 +136,31 @@ def elbo_gaussian(x, x_recon, cov, mu, logvar, beta):
         torch.det(cov) + torch.diagonal(torch.mm(torch.mm(diff, torch.inverse(cov)), torch.transpose(diff, 0, 1)))
     ).mul(-1/2)
 
-    # loss
+    # elbo
     loss = - beta * kl_div + recon_loss
 
     return - loss
+
+
+def recon_error(x, x_recon, cov, weighted):
+    """ Reconstruction error given x and x_recon
+    :param x: original image
+    :param x_recon: reconstruction in the output layer
+    :param cov: covariance matrix of the data distribution
+    :param weighted: whether to use weighted reconstruction
+
+    Returns
+    -------
+    error: reconstruction error
+    """
+
+    diff = x - x_recon
+
+    if weighted:
+        error = torch.sum(
+            torch.diagonal(torch.mm(torch.mm(diff, torch.inverse(cov)), torch.transpose(diff, 0, 1)))
+        ).mul(-1/2)
+    else:
+        error = torch.linalg.norm(diff, ord=2)
+
+    return error

@@ -8,12 +8,14 @@ import numpy as np
 import time
 
 
-def pipeline(biadj_mat, num_samps, seed=0):
+def pipeline(biadj_mat, num_samps, alpha, path, seed=0):
     """ Pipeline function for estimating the shd and number of reconstructed latent
     Parameters
     ----------
     biadj_mat: adjacency matrix of the bipartite graph
     num_samps: number of samples used for adjacency matrix
+    alpha: significance level
+    path: path for saving the files
     seed: random seed
 
     Returns
@@ -54,16 +56,14 @@ def pipeline(biadj_mat, num_samps, seed=0):
 
     # train & validate oracle VAE
     m, n = biadj_mat.shape
-    loss_true = train_vae(m, n, biadj_mat, train_loader, valid_loader, cov_train, cov_valid)
+    loss_true, error_true = train_vae(m, n, biadj_mat, train_loader, valid_loader, cov_train, cov_valid)
 
     # train & validate Vanilla VAE
     biadj_mat_vanilla = np.ones((m, n))
-    loss_vanilla = train_vae(m, n, biadj_mat_vanilla, train_loader, valid_loader, cov_train, cov_valid)
+    loss_vanilla, error_vanilla = train_vae(m, n, biadj_mat_vanilla, train_loader, valid_loader, cov_train, cov_valid)
 
     # train & validate exact MeDIL VAE
-    loss_exact = train_vae(m, n, biadj_mat_exact, train_loader, valid_loader, cov_train, cov_valid)
+    loss_exact, error_exact = train_vae(m, n, biadj_mat_exact, train_loader, valid_loader, cov_train, cov_valid)
 
     # train & validate heuristic MeDIL VAE
-    loss_hrstc = train_vae(m, n, biadj_mat_hrstc, train_loader, valid_loader, cov_train, cov_valid)
-
-    return loss_true, loss_vanilla, loss_exact, loss_hrstc, biadj_mat_medil
+    loss_hrstc, error_hrstc = train_vae(m, n, biadj_mat_hrstc, train_loader, valid_loader, cov_train, cov_valid)
