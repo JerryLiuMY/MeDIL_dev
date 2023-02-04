@@ -1,11 +1,12 @@
 from exp.utils import expand_recon, contract_recon, permute_graph, shd_func
-from medil.ecc_algorithms import find_clique_min_cover as find_cm
+from medil.ecc_algorithms import find_clique_min_cover
+from medil.ecc_algorithms import find_heuristic_clique_cover
 from medil.independence_testing import estimate_UDG
 from itertools import permutations, combinations
 import numpy as np
 
 
-def estimation(biadj_mat, num_obs, num_latent, samples):
+def estimation(biadj_mat, num_obs, num_latent, samples, heuristic):
     """ Perform estimations of the shd and number of reconstructed latent
     Parameters
     ----------
@@ -13,6 +14,7 @@ def estimation(biadj_mat, num_obs, num_latent, samples):
     num_obs: number of observed variables
     num_latent: number of latent variables
     samples: number of samples
+    heuristic: whether to use the heuristic solver
 
     Returns
     -------
@@ -28,7 +30,10 @@ def estimation(biadj_mat, num_obs, num_latent, samples):
     np.fill_diagonal(ud_graph, val=True)
 
     # step 2: learn graphical MCM
-    biadj_mat_recon = find_cm(ud_graph)
+    if heuristic:
+        biadj_mat_recon = find_heuristic_clique_cover(ud_graph)
+    else:
+        biadj_mat_recon = find_clique_min_cover(ud_graph)
     num_latent_recon = biadj_mat_recon.shape[0]
 
     # step 3: change the matrix to int

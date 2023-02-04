@@ -8,11 +8,12 @@ import numpy as np
 import time
 
 
-def pipeline(biadj_mat, seed=0):
+def pipeline(biadj_mat, num_samps, seed=0):
     """ Pipeline function for estimating the shd and number of reconstructed latent
     Parameters
     ----------
     biadj_mat: adjacency matrix of the bipartite graph
+    num_samps: number of samples used for adjacency matrix
     seed: random seed
 
     Returns
@@ -27,42 +28,42 @@ def pipeline(biadj_mat, seed=0):
 
     # load parameters
     np.random.seed(seed)
-    num_samps, batch_size = params_dict["num_samps"], params_dict["batch_size"]
+    batch_size = params_dict["batch_size"]
     num_train, num_valid = params_dict["num_train"], params_dict["num_valid"]
 
     # create biadj_mat and samples
     print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Sampling from biadj_mat")
     time.sleep(1)
     dim_obs = biadj_mat.shape[1]
-    samples, _ = sample_from_minMCM(biadj_mat, num_samps=num_samps)
+    samples, cov = sample_from_minMCM(biadj_mat, num_samps=num_samps)
 
     # learn MeDIL model
     print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Learning the MeDIL model")
     num_latent = biadj_mat.shape[0]
-    biadj_mat_medil, _, _, _ = estimation(biadj_mat, dim_obs, num_latent, samples)
+    biadj_mat_exact, _, _, _ = estimation(biadj_mat, dim_obs, num_latent, samples, heuristic=False)
+    biadj_mat_hrstc, _, _, _ = estimation(biadj_mat, dim_obs, num_latent, samples, heuristic=True)
 
-    # define training sample
+    # define VAE training and validation sample
     print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Preparing training and validation data for VAE")
-    train_loader, cov_train = load_dataset(biadj_mat, num_train, batch_size)
-    valid_loader, cov_valid = load_dataset(biadj_mat, num_valid, batch_size)
-    cov_train = cov_train[num_latent:, num_latent:]
+    train_loader = load_dataset(samples, num_latent, batch_size)
+    cov_train = cov[num_latent:, num_latent:]
+
+    valid_samples, cov_valid = sample_from_minMCM(biadj_mat, num_samps=num_valid)
+    valid_loader = load_dataset(valid_samples, num_latent, batch_size)
     cov_valid = cov_valid[num_latent:, num_latent:]
 
-    # train & validate Ground Truth VAE
+    # train & validate oracle VAE
     m, n = biadj_mat.shape
-    true_output = train_vae(m, n, biadj_mat, train_loader, valid_loader, cov_train, cov_valid)
-    model_true, train_loss_true, valid_loss_true = true_output
-    loss_true = [train_loss_true, valid_loss_true]
+    loss_true = train_vae(m, n, biadj_mat, train_loader, valid_loader, cov_train, cov_valid)
 
-    # train & validate MeDIL VAE
-    medil_output = train_vae(m, n, biadj_mat_medil, train_loader, valid_loader, cov_train, cov_valid)
-    model_medil, train_loss_medil, valid_loss_medil = medil_output
-    loss_medil = [train_loss_medil, valid_loss_medil]
-
-    # train & validate Vanilla VA
+    # train & validate Vanilla VAE
     biadj_mat_vanilla = np.ones((m, n))
-    vanilla_output = train_vae(m, n, biadj_mat_vanilla, train_loader, valid_loader, cov_train, cov_valid)
-    model_vanilla, train_loss_vanilla, valid_loss_vanilla = vanilla_output
-    loss_vanilla = [train_loss_vanilla, valid_loss_vanilla]
+    loss_vanilla = train_vae(m, n, biadj_mat_vanilla, train_loader, valid_loader, cov_train, cov_valid)
 
-    return loss_true, loss_medil, loss_vanilla, biadj_mat_medil
+    # train & validate exact MeDIL VAE
+    loss_exact = train_vae(m, n, biadj_mat_exact, train_loader, valid_loader, cov_train, cov_valid)
+
+    # train & validate heuristic MeDIL VAE
+    loss_hrstc = train_vae(m, n, biadj_mat_hrstc, train_loader, valid_loader, cov_train, cov_valid)
+
+    return loss_true, loss_vanilla, loss_exact, loss_hrstc, biadj_mat_medil

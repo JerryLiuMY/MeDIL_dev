@@ -71,7 +71,7 @@ def train_vae(m, n, biadj_mat, train_loader, valid_loader, cov_train, cov_valid)
     train_loss = np.array(train_loss)
     valid_loss = np.array(valid_loss)
 
-    return model, train_loss, valid_loss
+    return train_loss, valid_loss
 
 
 def valid_vae(model, valid_loader, cov_valid):
