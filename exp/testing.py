@@ -5,7 +5,7 @@ import pandas as pd
 import time
 
 
-def experiment(biadj_mat, num_runs, num_samps):
+def testing(biadj_mat, num_runs, num_samps):
     """ Experiment for verifying the SHD, USHD, diff and time
     Parameters
     ----------

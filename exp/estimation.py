@@ -6,7 +6,7 @@ from itertools import permutations, combinations
 import numpy as np
 
 
-def estimation(biadj_mat, num_obs, num_latent, samples, heuristic):
+def estimation(biadj_mat, num_obs, num_latent, samples, heuristic=False, alpha=0.05):
     """ Perform estimations of the shd and number of reconstructed latent
     Parameters
     ----------
@@ -15,6 +15,7 @@ def estimation(biadj_mat, num_obs, num_latent, samples, heuristic):
     num_latent: number of latent variables
     samples: number of samples
     heuristic: whether to use the heuristic solver
+    alpha: significance level
 
     Returns
     -------
@@ -26,7 +27,7 @@ def estimation(biadj_mat, num_obs, num_latent, samples, heuristic):
 
     # step 1: estimate UDG
     samples_in, samples_out = samples[:, :num_latent], samples[:, num_latent:]
-    ud_graph = estimate_UDG(samples_out, method="dcov_fast", significance_level=0.05)
+    ud_graph = estimate_UDG(samples_out, method="dcov_fast", significance_level=alpha)
     np.fill_diagonal(ud_graph, val=True)
 
     # step 2: learn graphical MCM
