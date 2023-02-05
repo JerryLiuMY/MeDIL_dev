@@ -7,7 +7,6 @@ import networkx as nx
 
 
 
-# %%
 def show_obs_adj_mat(incidence_mat):
 
     fig, ax = plt.subplots()
