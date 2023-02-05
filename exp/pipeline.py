@@ -1,8 +1,8 @@
 from medil.functional_MCM import sample_from_minMCM
-from exp.estimation import estimation
-from learning.train import train_vae
-from learning.params import params_dict
 from learning.data_loader import load_dataset
+from learning.params import params_dict
+from learning.train import train_vae
+from exp.estimation import estimation
 from datetime import datetime
 import pickle
 import numpy as np
@@ -32,8 +32,7 @@ def pipeline(biadj_mat, num_samps, alpha, path, seed=0):
 
     # load parameters
     np.random.seed(seed)
-    batch_size = params_dict["batch_size"]
-    num_train, num_valid = params_dict["num_train"], params_dict["num_valid"]
+    batch_size, num_valid = params_dict["batch_size"], params_dict["num_valid"]
 
     # create biadj_mat and samples
     print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Sampling from biadj_mat")
