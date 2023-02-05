@@ -2,9 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-
 import networkx as nx
-
 
 
 def show_obs_adj_mat(incidence_mat):
