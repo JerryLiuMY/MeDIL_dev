@@ -1,5 +1,5 @@
 from medil.functional_MCM import sample_from_minMCM
-from exp.estimation import estimation
+from est.estimation import estimation
 import numpy as np
 import pandas as pd
 import time

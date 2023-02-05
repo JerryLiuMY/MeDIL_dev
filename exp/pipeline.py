@@ -1,9 +1,8 @@
 from medil.functional_MCM import sample_from_minMCM
 from learning.data_loader import load_dataset
-from exp.visualization import plot_learning
 from learning.params import params_dict
 from learning.train import train_vae
-from exp.estimation import estimation
+from est.estimation import estimation
 from datetime import datetime
 import pickle
 import numpy as np
@@ -45,7 +44,7 @@ def pipeline(biadj_mat, num_samps, alpha, path, seed=0):
     print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Learning the MeDIL model")
     num_latent = biadj_mat.shape[0]
     biadj_mat_exact, _, _, _ = estimation(biadj_mat, dim_obs, num_latent, samples, heuristic=False, alpha=alpha)
-    biadj_mat_hrstc, _, _, _ = estimation(biadj_mat, dim_obs, num_latent, samples, heuristic=True, alpha=alpha)
+    # biadj_mat_hrstc, _, _, _ = estimation(biadj_mat, dim_obs, num_latent, samples, heuristic=True, alpha=alpha)
     np.save(os.path.join(path, "biadj_mat.npy"), biadj_mat)
     np.save(os.path.join(path, "biadj_mat_exact.npy"), biadj_mat_exact)
     # np.save(os.path.join(path, "biadj_mat_hrstc.npy"), biadj_mat_hrstc)
