@@ -14,8 +14,10 @@ def main(linspace, alphas, parent_path):
 
     for run in range(10):
         exp_path = os.path.join(parent_path, f"experiment_{run}")
-        run_defined(linspace, alphas, exp_path)
-        run_random(8, 0.5, linspace, alphas, exp_path)
+        if not os.path.isdir(exp_path):
+            os.mkdir(exp_path)
+            run_defined(linspace, alphas, exp_path)
+            run_random(8, 0.5, linspace, alphas, exp_path)
 
 
 if __name__ == "__main__":
