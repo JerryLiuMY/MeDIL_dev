@@ -212,6 +212,11 @@ def max_cliques(nbrhood):
 def find_heuristic_clique_cover(graph):
     graph = UndirectedDependenceGraph(graph)
 
+    if graph.num_edges == 0:
+        # solution is trivial
+        the_cover = np.eye(graph.max_num_verts)
+        return the_cover
+
     # convert and save graph in useable format for java code
     graph.convert_to_nde()
 
