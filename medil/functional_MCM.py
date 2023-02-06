@@ -20,7 +20,7 @@ def rand_biadj_mat(num_obs, edge_prob, rng=default_rng(0)):
     udg = np.zeros((num_obs, num_obs), bool)
     max_edges = (num_obs * (num_obs - 1)) // 2
     udg[np.triu_indices(num_obs, k=1)] = rng.choice(
-        (True, False), max_edges, (edge_prob, 1 - edge_prob)
+        a=(True, False), size=max_edges, p=(edge_prob, 1 - edge_prob)
     )
     udg += udg.T
     np.fill_diagonal(udg, True)
