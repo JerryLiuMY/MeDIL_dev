@@ -6,7 +6,7 @@ from itertools import permutations, combinations
 import numpy as np
 
 
-def estimation(biadj_mat, num_obs, num_latent, samples, heuristic=False, alpha=0.05):
+def estimation(biadj_mat, num_obs, num_latent, samples, heuristic, alpha):
     """ Perform estimations of the shd and number of reconstructed latent
     Parameters
     ----------
