@@ -1,6 +1,6 @@
 from medil.functional_MCM import sample_from_minMCM
 from learning.data_loader import load_dataset, load_dataset_real
-from est.estimation import estimation, estimation_real
+from graph_est.estimation import estimation, estimation_real
 from learning.params import params_dict
 from learning.train import train_vae
 from datetime import datetime
