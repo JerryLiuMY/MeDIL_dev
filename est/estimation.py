@@ -61,6 +61,28 @@ def estimation(biadj_mat, num_obs, num_latent, samples, heuristic=False, alpha=0
     return biadj_mat_learned, shd, ushd, num_latent_recon
 
 
+def estimation_real(samples_out, heuristic=False, alpha=0.05):
+    """ Perform estimations of the shd and number of reconstructed latent
+    Parameters
+    ----------
+    samples_out: output samples
+    heuristic: whether to use the heuristic solver
+    alpha: significance level
+    """
+
+    # step 1: estimate UDG
+    ud_graph = estimate_UDG(samples_out, method="dcov_fast", significance_level=alpha)
+    np.fill_diagonal(ud_graph, val=True)
+
+    # step 2: learn graphical MCM
+    if heuristic:
+        biadj_mat_recon = find_heuristic_clique_cover(ud_graph)
+    else:
+        biadj_mat_recon = find_clique_min_cover(ud_graph)
+
+    return biadj_mat_recon
+
+
 def find_learned(biadj_mat, biadj_mat_recon):
     """ Find the learned directed graph that minimizes the SHD
     Parameters
