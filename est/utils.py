@@ -74,3 +74,21 @@ def shd_func(g1, g2):
     shd = cdt.metrics.SHD(g1, g2)
 
     return shd
+
+
+def generate_linspace(lin_min, lin_max, size):
+    """ Generate linspace given the minimal and maximal value inputs
+    Parameters
+    ----------
+    lin_min: minimum value
+    lin_max: maximum value
+    size: size of the dataset
+    Returns
+    -------
+
+    """
+
+    linspace = np.exp(np.linspace(np.log(lin_min), np.log(lin_max), size))
+    linspace = np.array(sorted(set(np.round(linspace)))).astype(int)
+
+    return linspace
