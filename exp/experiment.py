@@ -1,12 +1,12 @@
 from datetime import datetime
 from exp.pipeline import pipeline
-from exp.examples import biadj_mat_list, conversion_dict
-from medil.functional_MCM import rand_biadj_mat
+from exp.examples import fixed_biadj_mat_list, conversion_dict
+from exp.examples import rand_biadj_mat_list
 import os
 
 
-def run_defined(linspace, alphas, exp_path):
-    """ Run MeDIL on the define graphs
+def run_fixed(linspace, alphas, exp_path):
+    """ Run MeDIL on the fixed graphs
     Parameters
     ----------
     linspace: linspace for the number of samples
@@ -14,7 +14,7 @@ def run_defined(linspace, alphas, exp_path):
     exp_path: path for the experiment
     """
 
-    for idx, biadj_mat in enumerate(biadj_mat_list):
+    for idx, biadj_mat in enumerate(fixed_biadj_mat_list):
         graph_idx = conversion_dict[idx]
         graph_path = os.path.join(exp_path, f"Graph_{graph_idx}")
         if not os.path.isdir(graph_path):
@@ -30,25 +30,22 @@ def run_defined(linspace, alphas, exp_path):
                     pipeline(biadj_mat, num_samps, alpha, folder_path, seed=0)
 
 
-def run_random(num_obs, edge_prob, linspace, alphas, exp_path):
+def run_random(linspace, alphas, exp_path):
     """ Run MeDIL on the random graphs
     Parameters
     ----------
-    num_obs: number of observations
-    edge_prob: edge probability
     linspace: linspace for the number of samples
     alphas: list of alphas
     exp_path: path for the experiment
     """
 
-    for i in range(10):
-        biadj_mat = rand_biadj_mat(num_obs=num_obs, edge_prob=edge_prob)
-        graph_path = os.path.join(exp_path, f"Graph_{i}")
+    for idx, biadj_mat in enumerate(rand_biadj_mat_list):
+        graph_path = os.path.join(exp_path, f"Graph_{idx}")
         if not os.path.isdir(graph_path):
             os.mkdir(graph_path)
         for num_samps in linspace:
             for alpha in alphas:
-                print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Working on graph {i} with "
+                print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Working on graph {idx} with "
                       f"num_samps={num_samps} and alpha={alpha}")
                 folder_name = f"num_samps={num_samps}_alpha={alpha}"
                 folder_path = os.path.join(graph_path, folder_name)
