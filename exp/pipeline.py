@@ -44,10 +44,10 @@ def pipeline(biadj_mat, num_samps, alpha, path, seed=0):
     print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Learning the MeDIL model")
     num_latent = biadj_mat.shape[0]
     biadj_mat_exact, _, _, _ = estimation(biadj_mat, dim_obs, num_latent, samples, heuristic=False, alpha=alpha)
-    # biadj_mat_hrstc, _, _, _ = estimation(biadj_mat, dim_obs, num_latent, samples, heuristic=True, alpha=alpha)
+    biadj_mat_hrstc, _, _, _ = estimation(biadj_mat, dim_obs, num_latent, samples, heuristic=True, alpha=alpha)
     np.save(os.path.join(path, "biadj_mat.npy"), biadj_mat)
     np.save(os.path.join(path, "biadj_mat_exact.npy"), biadj_mat_exact)
-    # np.save(os.path.join(path, "biadj_mat_hrstc.npy"), biadj_mat_hrstc)
+    np.save(os.path.join(path, "biadj_mat_hrstc.npy"), biadj_mat_hrstc)
 
     # define VAE training and validation sample
     print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Preparing training and validation data for VAE")
@@ -81,9 +81,9 @@ def pipeline(biadj_mat, num_samps, alpha, path, seed=0):
     with open(os.path.join(path, "error_exact.pkl"), "wb") as handle:
         pickle.dump(error_exact, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-    # # train & validate heuristic MeDIL VAE
-    # loss_hrstc, error_hrstc = train_vae(m, n, biadj_mat_hrstc, train_loader, valid_loader, cov_train, cov_valid)
-    # with open(os.path.join(path, "loss_hrstc.pkl"), "wb") as handle:
-    #     pickle.dump(loss_hrstc, handle, protocol=pickle.HIGHEST_PROTOCOL)
-    # with open(os.path.join(path, "error_hrstc.pkl"), "wb") as handle:
-    #     pickle.dump(error_hrstc, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    # train & validate heuristic MeDIL VAE
+    loss_hrstc, error_hrstc = train_vae(m, n, biadj_mat_hrstc, train_loader, valid_loader, cov_train, cov_valid)
+    with open(os.path.join(path, "loss_hrstc.pkl"), "wb") as handle:
+        pickle.dump(loss_hrstc, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    with open(os.path.join(path, "error_hrstc.pkl"), "wb") as handle:
+        pickle.dump(error_hrstc, handle, protocol=pickle.HIGHEST_PROTOCOL)
