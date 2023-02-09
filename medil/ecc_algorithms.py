@@ -229,9 +229,8 @@ def find_heuristic_clique_cover(graph):
     )
 
     # load solution from java code and delete the temp files it created/used
-    # the_cover_idcs = np.loadtxt("temp/temp.nde-rand.EPSc.cover").astype(int)
-    with open("temp/temp.nde-rand.EPSc.cover") as f:
-        the_cover_idcs = [[int(_) for _ in line.strip().split(" ")] for line in f.readlines()]
+    with open("temp/temp.nde-rand.EPSc.cover", "r") as f:
+        the_cover_idcs = [map(int, x.split()) for x in f.readlines()]
 
     os.remove("temp.nde")
     shutil.rmtree("temp")
