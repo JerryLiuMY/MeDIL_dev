@@ -30,7 +30,7 @@ fixed_biadj_mat_list = [
 ]
 
 
-num_obs = 10
+num_obs = 8
 rand_biadj_mat_list = []
 for i in range(10):
     np.random.seed(i)
