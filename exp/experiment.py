@@ -1,9 +1,9 @@
 from datetime import datetime
-import pandas as pd
 from exp.pipeline import pipeline_graph, pipeline_real
 from exp.examples import fixed_biadj_mat_list, conversion_dict
 from exp.examples import rand_biadj_mat_list, tcga_key_list
 from gloabl_settings import DATA_PATH
+import pandas as pd
 import os
 
 

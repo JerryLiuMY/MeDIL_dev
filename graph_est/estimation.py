@@ -1,4 +1,4 @@
-from est.utils import expand_recon, contract_recon, permute_graph, shd_func
+from graph_est.utils import expand_recon, contract_recon, permute_graph, shd_func
 from medil.ecc_algorithms import find_clique_min_cover
 from medil.ecc_algorithms import find_heuristic_clique_cover
 from medil.independence_testing import estimate_UDG
