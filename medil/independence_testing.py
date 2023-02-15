@@ -241,8 +241,19 @@ def estimate_UDG(sample, method="dcov_fast", significance_level=0.05):
     elif method == "dcov_big":
         udg = np.zeros((num_feats, num_feats), bool)
         idxs, jdxs = np.triu_indices(num_feats, 1)
-        for i, j in zip(idxs, jdxs):
-            x, y = sample[:, [i, j]].T
-            p_val = distance_correlation_t_test(x, y).pvalue
-            udg[i, j] = udg[j, i] = p_val < significance_level
+        zipped = zip(idxs, jdxs)
+        sample_iter = (sample[:, i_j].T for i_j in zipped)
+        with Pool(12) as p:
+            udg[idxs, jdxs] = udg[jdxs, idxs] = np.fromiter(
+                p.imap(test, sample_iter, 100), bool
+            )
     return udg
+
+
+def test(x_y):
+    significance_level = 0.001
+    x, y = x_y
+    p_val = distance_correlation_t_test(x, y).pvalue
+    return p_val < significance_level
+
+    return test
