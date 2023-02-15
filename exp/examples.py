@@ -39,10 +39,9 @@ for i in range(10):
     rand_biadj_mat_list.append(rand_biadj_mat(num_obs=num_obs, edge_prob=np.random.uniform(size=1)[0]))
 
 
-# real dataset
+# tcga dataset
 tcga_size, num_obs = 904, 8
 tcga_key_list = []
 for i in range(10):
     np.random.seed(i)
-    rand_biadj_mat_list.append(rand_biadj_mat(num_obs=num_obs, edge_prob=np.random.uniform(size=1)[0]))
-    np.random.choice(tcga_size, size=num_obs)
+    tcga_key_list.append(np.random.choice(tcga_size, size=num_obs))

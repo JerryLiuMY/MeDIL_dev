@@ -19,15 +19,16 @@ def main(dataset_name, parent_path):
     if not os.path.isdir(exp_path):
         os.mkdir(exp_path)
         # fixed and random dataset
-        linspace = np.exp(np.linspace(np.log(100), np.log(2500), 10))
-        linspace = np.array(sorted(set(np.round(linspace)))).astype(int)
-        run_fixed(linspace, alphas, exp_path)
-        run_random(linspace, alphas, exp_path)
 
-        # real dataset
-        linspace = np.exp(np.linspace(np.log(100), np.log(632), 10))
-        linspace = np.array(sorted(set(np.round(linspace)))).astype(int)
-        run_real(dataset_name, linspace, alphas, exp_path)
+    # linspace = np.exp(np.linspace(np.log(100), np.log(2500), 10))
+    # linspace = np.array(sorted(set(np.round(linspace)))).astype(int)
+    # run_fixed(linspace, alphas, exp_path)
+    # run_random(linspace, alphas, exp_path)
+
+    # real dataset
+    linspace = np.exp(np.linspace(np.log(100), np.log(632), 10))
+    linspace = np.array(sorted(set(np.round(linspace)))).astype(int)
+    run_real(dataset_name, linspace, alphas, exp_path)
 
 
 if __name__ == "__main__":

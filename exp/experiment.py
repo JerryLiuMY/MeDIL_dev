@@ -2,6 +2,7 @@ from datetime import datetime
 from exp.pipeline import pipeline_graph, pipeline_real
 from exp.examples import fixed_biadj_mat_list, conversion_dict
 from exp.examples import rand_biadj_mat_list, tcga_key_list
+from sklearn.preprocessing import StandardScaler
 from gloabl_settings import DATA_PATH
 import pandas as pd
 import os
@@ -67,13 +68,21 @@ def run_real(dataset_name, linspace, alphas, exp_path):
     """
 
     dataset_path = os.path.join(DATA_PATH, "dataset")
-    dataset_train = pd.read_csv(os.path.join(dataset_path, f"{dataset_name}_train.csv")).values
-    dataset_valid = pd.read_csv(os.path.join(dataset_path, f"{dataset_name}_valid.csv")).values
+    sc = StandardScaler()
+    dataset_train = pd.read_csv(os.path.join(dataset_path, f"{dataset_name}_train.csv"))
+    dataset_valid = pd.read_csv(os.path.join(dataset_path, f"{dataset_name}_valid.csv"))
+    dataset_train = pd.DataFrame(sc.fit_transform(dataset_train), dataset_train.index, dataset_train.columns)
+    dataset_valid = pd.DataFrame(sc.fit_transform(dataset_valid), dataset_valid.index, dataset_valid.columns)
 
-    for idx, tcga_key in enumerate(tcga_key_list):
+    if dataset_name == "tcga":
+        dataset_key_list = tcga_key_list
+    else:
+        raise ValueError("Invalid dataset name")
+
+    for idx, dataset_key in enumerate(dataset_key_list):
         graph_path = os.path.join(exp_path, f"Real_{idx}")
-        dataset_train = dataset_train.iloc[:, tcga_key]
-        dataset_valid = dataset_valid.iloc[:, tcga_key]
+        dataset_train = dataset_train.iloc[:, dataset_key].values
+        dataset_valid = dataset_valid.iloc[:, dataset_key].values
         dataset = [dataset_train, dataset_valid]
         if not os.path.isdir(graph_path):
             os.mkdir(graph_path)
