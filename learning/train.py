@@ -6,7 +6,7 @@ import torch
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
-def train_vae(m, n, biadj_mat, train_loader, valid_loader, cov_train, cov_valid):
+def train_vae(m, n, biadj_mat, train_loader, valid_loader, cov_train, cov_valid, seed):
     """ Training VAE with the specified image dataset
     :param m: dimension of the latent variable
     :param n: dimension of the observed variable

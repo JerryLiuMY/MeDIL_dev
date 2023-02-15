@@ -40,7 +40,7 @@ for i in range(10):
 
 
 # tcga dataset
-tcga_size, num_obs = 904, 8
+tcga_size, num_obs = 17440, 8
 tcga_key_list = []
 for i in range(10):
     np.random.seed(i)
