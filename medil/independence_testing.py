@@ -7,6 +7,7 @@ from numpy import linalg as LA
 from scipy.stats import chi2
 
 try:
+    from dcor.independence import distance_correlation_t_test
     from dcor import pairwise, distance_correlation as dist_corr
 
     default_measure = "dcor"
@@ -226,15 +227,22 @@ def dcov(samples):
     return dists @ dists.T / num_samps**2, d_bars
 
 
-def estimate_UDG(samples, method="dcov_fast", significance_level=0.05):
-    num_samps = len(samples)
+def estimate_UDG(sample, method="dcov_fast", significance_level=0.05):
+    samp_size, num_feats = sample.shape
 
     if method == "dcov_fast":
-        cov, d_bars = dcov(samples)
+        cov, d_bars = dcov(sample)
         crit_val = chi2(1).ppf(1 - significance_level)
-        test_val = num_samps * cov / np.outer(d_bars, d_bars)
+        test_val = samp_size * cov / np.outer(d_bars, d_bars)
         udg = test_val >= crit_val
         np.fill_diagonal(udg, False)
     elif method == "g-test":
         pass
+    elif method == "dcov_big":
+        udg = np.zeros((num_feats, num_feats), bool)
+        idxs, jdxs = np.triu_indices(num_feats, 1)
+        for i, j in zip(idxs, jdxs):
+            x, y = sample[:, [i, j]].T
+            p_val = distance_correlation_t_test(x, y).pvalue
+            udg[i, j] = udg[j, i] = p_val < significance_level
     return udg
