@@ -7,7 +7,7 @@ import matplotlib
 
 
 ## load data
-path = "e_coli_application/"
+path = "/home/alex/projects/cfa_code/e_coli_application/"
 # load data
 data = np.loadtxt(
     path + "gene_expression.csv", delimiter=",", usecols=list(range(1, 24)), skiprows=1
@@ -17,12 +17,12 @@ gene_names = np.loadtxt(
 )
 
 ## estimated UDG and cover
-udg = estimate_UDG(
-    data, significance_level=0.05
-)  # sig_level has substantial effect on estimation; alpa = 0.16089 gives same number of edges as true, but only 0.72 accuracy
-np.fill_diagonal(udg, True)
-heuristic_cover = find_heuristic_clique_cover(udg)
-exact_cover = find_clique_min_cover(udg)
+# udg = estimate_UDG(
+#     data, significance_level=0.05
+# )  # sig_level has substantial effect on estimation; alpa = 0.16089 gives same number of edges as true, but only 0.72 accuracy
+# np.fill_diagonal(udg, True)
+# heuristic_cover = find_heuristic_clique_cover(udg)
+# exact_cover = find_clique_min_cover(udg)
 # 14 and 15 latents
 
 
@@ -38,8 +38,8 @@ true_cover = np.loadtxt(
 true_udg = true_cover.T @ true_cover
 # np.fill_diagonal(true_udg, False)
 
-expert_exact_cover = find_clique_min_cover(true_udg)
-expert_heuristic_cover = find_heuristic_clique_cover(true_udg)
+# expert_exact_cover = find_clique_min_cover(true_udg)
+# expert_heuristic_cover = find_heuristic_clique_cover(true_udg)
 # both have 16 latents
 
 
@@ -52,8 +52,10 @@ fprs = np.empty_like(alphas, dtype=float)
 num_vars = data.shape[1]
 total_p = np.triu(true_udg, 1).sum()
 total_n = np.triu(~true_udg, 1).sum()
+corr = np.corrcoef(data, rowvar=False)
 for idx, alpha in enumerate(alphas):
-    est_udg, p_vals = estimate_UDG(data, "dcov_big", alpha)
+    # est_udg, p_vals = estimate_UDG(data, "dcov_big", alpha)
+    est_udg = np.abs(corr) >= (1 - alpha)
     tprs[idx] = np.triu(np.logical_and(est_udg, true_udg), 1).sum() / total_p
     fprs[idx] = np.triu(np.logical_and(est_udg, ~true_udg), 1).sum() / total_n
 
