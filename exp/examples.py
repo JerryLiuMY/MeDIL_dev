@@ -54,3 +54,10 @@ fixed_paths_list = [f"Graph_{i}" for i in string.ascii_lowercase[:9]]
 rand_paths_list = [f"Graph_{i}" for i in range(10)]
 real_paths_list = [f"Real_{i}" for i in range(10)]
 paths_list = fixed_paths_list + rand_paths_list + real_paths_list
+
+
+# linspace for the simulated graphs and the real dataset
+linspace_graph = np.exp(np.linspace(np.log(100), np.log(2500), 10))
+linspace_graph = np.array(sorted(set(np.round(linspace_graph)))).astype(int)
+linspace_real = np.exp(np.linspace(np.log(100), np.log(632), 10))
+linspace_real = np.array(sorted(set(np.round(linspace_real)))).astype(int)
