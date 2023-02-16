@@ -1,6 +1,6 @@
 # from keras.datasets import mnist
 from medil.independence_testing import estimate_UDG
-from medil.ecc_algorithms import find_heuristic_clique_cover
+from medil.ecc_algorithms import find_heuristic_clique_cover, find_clique_min_cover
 import numpy as np
 
 
@@ -18,3 +18,6 @@ udg = np.load(path + "mnist_udg.npy")
 # the_cover = find_heuristic_clique_cover(udg)
 # np.save(path + "mnist_cover", the_cover)
 the_cover = np.load(path + "mnist_cover.npy")
+
+
+# the_exact_cover = find_clique_min_cover(udg)
