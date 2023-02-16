@@ -30,7 +30,7 @@ true_cover = np.loadtxt(
     skiprows=1,
 ).T  # has 16 latents
 
-true_udg = true_latents.T @ true_latents
+true_udg = true_cover.T @ true_cover
 # np.fill_diagonal(true_udg, False)
 
 expert_exact_cover = find_clique_min_cover(true_udg)

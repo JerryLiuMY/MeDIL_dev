@@ -239,6 +239,7 @@ def estimate_UDG(sample, method="dcov_fast", significance_level=0.05, precompute
     elif method == "g-test":
         pass
     elif method == "dcov_big":
+        p_vals = precomputed
         if precomputed is None:
             p_vals = np.zeros((num_feats, num_feats), float)
             idxs, jdxs = np.triu_indices(num_feats, 1)
@@ -248,10 +249,11 @@ def estimate_UDG(sample, method="dcov_fast", significance_level=0.05, precompute
                 p_vals[idxs, jdxs] = p_vals[jdxs, idxs] = np.fromiter(
                     p.imap(test, sample_iter, 100), bool
                 )
+            return (p_vals < significance_level), p_vals
         else:
             p_vals = precomputed
-
-    return p_vals < significance_level, p_vals
+            udg = p_vals < significance_level
+    return udg
 
 
 def test(x_y):
