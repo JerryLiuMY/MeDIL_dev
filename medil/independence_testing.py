@@ -247,7 +247,7 @@ def estimate_UDG(sample, method="dcov_fast", significance_level=0.05, precompute
             sample_iter = (sample[:, i_j].T for i_j in zipped)
             with Pool(12) as p:
                 p_vals[idxs, jdxs] = p_vals[jdxs, idxs] = np.fromiter(
-                    p.imap(test, sample_iter, 100), bool
+                    p.imap(test, sample_iter, 100), float
                 )
             return (p_vals < significance_level), p_vals
         else:
