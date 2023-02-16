@@ -42,6 +42,7 @@ for i in range(10):
 # tcga dataset
 tcga_size, num_obs = 17440, 8
 tcga_key_list = []
+tcga_subsize = 1000
 for i in range(10):
     np.random.seed(i)
     tcga_key_list.append(np.random.choice(tcga_size, size=num_obs))

@@ -1,9 +1,8 @@
 from datetime import datetime
 from exp.pipeline import pipeline_graph
 from exp.pipeline import pipeline_real
-from exp.pipeline import pipeline_real_full
 from exp.examples import fixed_biadj_mat_list, conversion_dict
-from exp.examples import rand_biadj_mat_list, tcga_key_list
+from exp.examples import rand_biadj_mat_list, tcga_key_list, tcga_subsize
 from sklearn.preprocessing import StandardScaler
 from gloabl_settings import DATA_PATH
 import pandas as pd
@@ -122,8 +121,8 @@ def run_real_full(dataset_name, linspace, alphas, exp_path, seed):
     dataset_valid = pd.DataFrame(sc.fit_transform(dataset_valid), dataset_valid.index, dataset_valid.columns).values
 
     graph_path = os.path.join(exp_path, f"Real_Full")
-    dataset_train = dataset_train[:, :1000]
-    dataset_valid = dataset_valid[:, :1000]
+    dataset_train = dataset_train[:, :tcga_subsize]
+    dataset_valid = dataset_valid[:, :tcga_subsize]
     dataset = [dataset_train, dataset_valid]
 
     if not os.path.isdir(graph_path):
@@ -136,4 +135,4 @@ def run_real_full(dataset_name, linspace, alphas, exp_path, seed):
             folder_path = os.path.join(graph_path, folder_name)
             if not os.path.isdir(folder_path):
                 os.mkdir(folder_path)
-                pipeline_real_full(dataset, alpha, folder_path, seed=seed)
+                pipeline_real(dataset, alpha, folder_path, seed=seed)

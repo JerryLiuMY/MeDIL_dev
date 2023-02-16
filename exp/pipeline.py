@@ -1,4 +1,4 @@
-from exp.run_funcs import run_vae_oracle, run_vae_suite, run_vae_hrstc
+from exp.run_funcs import run_vae_oracle, run_vae_suite
 from medil.functional_MCM import sample_from_minMCM
 from learning.data_loader import load_dataset, load_dataset_real
 from graph_est.estimation import estimation, estimation_real
@@ -33,10 +33,8 @@ def pipeline_graph(biadj_mat, num_samps, alpha, path, seed):
     # learn MeDIL model and save graph
     print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Learning the MeDIL model")
     num_latent = biadj_mat.shape[0]
-    biadj_mat_exact, _, _, _ = estimation(biadj_mat, dim_obs, num_latent, samples, heuristic=False, alpha=alpha)
     biadj_mat_hrstc, _, _, _ = estimation(biadj_mat, dim_obs, num_latent, samples, heuristic=True, alpha=alpha)
     np.save(os.path.join(path, "biadj_mat.npy"), biadj_mat)
-    np.save(os.path.join(path, "biadj_mat_exact.npy"), biadj_mat_exact)
     np.save(os.path.join(path, "biadj_mat_hrstc.npy"), biadj_mat_hrstc)
 
     # define VAE training and validation sample
@@ -50,7 +48,7 @@ def pipeline_graph(biadj_mat, num_samps, alpha, path, seed):
 
     # perform vae training
     run_vae_oracle(biadj_mat, train_loader, valid_loader, cov_train, cov_valid, path, seed)
-    run_vae_suite(biadj_mat_exact, biadj_mat_hrstc, train_loader, valid_loader, cov_train, cov_valid, path, seed)
+    run_vae_suite(biadj_mat_hrstc, train_loader, valid_loader, cov_train, cov_valid, path, seed)
 
 
 def pipeline_real(dataset, alpha, path, seed):
@@ -70,37 +68,6 @@ def pipeline_real(dataset, alpha, path, seed):
 
     # learn MeDIL model and save graph
     print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Learning the MeDIL model")
-    biadj_mat_exact = estimation_real(samples, heuristic=False, alpha=alpha)
-    biadj_mat_hrstc = estimation_real(samples, heuristic=True, alpha=alpha)
-    np.save(os.path.join(path, "biadj_mat_exact.npy"), biadj_mat_exact)
-    np.save(os.path.join(path, "biadj_mat_hrstc.npy"), biadj_mat_hrstc)
-
-    # define VAE training and validation sample
-    print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Preparing training and validation data for VAE")
-    train_loader = load_dataset_real(samples, batch_size)
-    valid_loader = load_dataset_real(valid_samples, batch_size)
-
-    cov_train, cov_valid = np.eye(samples.shape[1]), np.eye(samples.shape[1])
-    run_vae_suite(biadj_mat_exact, biadj_mat_hrstc, train_loader, valid_loader, cov_train, cov_valid, path, seed)
-
-
-def pipeline_real_full(dataset, alpha, path, seed):
-    """ Pipeline function for estimating the shd and number of reconstructed latent
-    Parameters
-    ----------
-    dataset: dataset for real experiments
-    alpha: significance level
-    path: path for saving the files
-    seed: random seed
-    """
-
-    # load parameters
-    np.random.seed(seed)
-    batch_size = params_dict["batch_size"]
-    samples, valid_samples = dataset
-
-    # learn MeDIL model and save graph
-    print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Learning the MeDIL model")
     biadj_mat_hrstc = estimation_real(samples, heuristic=True, alpha=alpha)
     np.save(os.path.join(path, "biadj_mat_hrstc.npy"), biadj_mat_hrstc)
 
@@ -110,4 +77,4 @@ def pipeline_real_full(dataset, alpha, path, seed):
     valid_loader = load_dataset_real(valid_samples, batch_size)
 
     cov_train, cov_valid = np.eye(samples.shape[1]), np.eye(samples.shape[1])
-    run_vae_hrstc(biadj_mat_hrstc, train_loader, valid_loader, cov_train, cov_valid, path, seed)
+    run_vae_suite(biadj_mat_hrstc, train_loader, valid_loader, cov_train, cov_valid, path, seed)
