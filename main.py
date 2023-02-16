@@ -16,22 +16,32 @@ def main(dataset_name, parent_path):
 
     alphas = [0.01, 0.05, 0.1, 0.2, 0.5, 0.9]
 
-    for run in range(10):
-        # real dataset
-        exp_path = os.path.join(parent_path, f"experiment_{run}")
-        if not os.path.isdir(exp_path):
-            os.mkdir(exp_path)
+    # for run in range(10):
+    #     # real dataset
+    #     exp_path = os.path.join(parent_path, f"experiment_{run}")
+    #     if not os.path.isdir(exp_path):
+    #         os.mkdir(exp_path)
+    #
+    #     # fixed and random dataset
+    #     linspace = np.exp(np.linspace(np.log(100), np.log(2500), 10))
+    #     linspace = np.array(sorted(set(np.round(linspace)))).astype(int)
+    #     run_fixed(linspace, alphas, exp_path, seed=run)
+    #     run_random(linspace, alphas, exp_path, seed=run)
+    #
+    #     linspace = np.exp(np.linspace(np.log(100), np.log(632), 10))
+    #     linspace = np.array(sorted(set(np.round(linspace)))).astype(int)
+    #     run_real(dataset_name, linspace, alphas, exp_path, seed=run)
 
-        # fixed and random dataset
-        linspace = np.exp(np.linspace(np.log(100), np.log(2500), 10))
-        linspace = np.array(sorted(set(np.round(linspace)))).astype(int)
-        run_fixed(linspace, alphas, exp_path, seed=run)
-        run_random(linspace, alphas, exp_path, seed=run)
+    run = 0
+    # real dataset
+    exp_path = os.path.join(parent_path, f"experiment_{run}")
+    if not os.path.isdir(exp_path):
+        os.mkdir(exp_path)
 
-        linspace = np.exp(np.linspace(np.log(100), np.log(632), 10))
-        linspace = np.array(sorted(set(np.round(linspace)))).astype(int)
-        run_real(dataset_name, linspace, alphas, exp_path, seed=run)
-        run_real_full(dataset_name, linspace, alphas, exp_path, seed=run)
+    linspace = np.exp(np.linspace(np.log(100), np.log(632), 10))
+    linspace = np.array(sorted(set(np.round(linspace)))).astype(int)
+
+    run_real_full(dataset_name, linspace, alphas, exp_path, seed=run)
 
 
 if __name__ == "__main__":
