@@ -10,7 +10,8 @@ path = "mnist_application/"
 # np.save(path + "mnist_data", data)
 data = np.load(path + "mnist_data.npy").astype(float)
 
-# udg = estimate_UDG(data, "dcov_big", 0.001)
+# udg, p_vals = estimate_UDG(data, "dcov_big", 0.01)
+# np.save(path + "mnist_p_vals", p_vals)
 # np.save(path + "mnist_udg", udg)
 udg = np.load(path + "mnist_udg.npy")
 
