@@ -31,7 +31,7 @@ def main(dataset_name, parent_path):
         linspace = np.exp(np.linspace(np.log(100), np.log(632), 10))
         linspace = np.array(sorted(set(np.round(linspace)))).astype(int)
         run_real(dataset_name, linspace, alphas, exp_path, seed=run)
-        # run_real_full(dataset_name, linspace, alphas, exp_path, seed=run)
+        run_real_full(dataset_name, linspace, alphas, exp_path, seed=run)
 
 
 if __name__ == "__main__":
