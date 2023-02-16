@@ -1,6 +1,6 @@
 """Randomly sample from and generate functional MeDIL Causal Models."""
+from .ecc_algorithms import find_heuristic_clique_cover as find_cm
 from numpy.random import default_rng
-from .ecc_algorithms import find_clique_min_cover as find_cm
 import numpy as np
 
 
