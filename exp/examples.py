@@ -49,6 +49,15 @@ for i in range(10):
     tcga_key_list.append(np.random.choice(tcga_size, size=num_obs))
 
 
+# mnist dataset
+mnist_size, num_obs = 784, 8
+mnist_key_list = []
+mnist_subsize = 784
+for i in range(10):
+    np.random.seed(i)
+    mnist_key_list.append(np.random.choice(mnist_size, size=num_obs))
+
+
 # sub paths
 fixed_paths_list = [f"Graph_{i}" for i in string.ascii_lowercase[:9]]
 rand_paths_list = [f"Graph_{i}" for i in range(10)]

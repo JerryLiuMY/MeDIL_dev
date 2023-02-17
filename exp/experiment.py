@@ -2,7 +2,8 @@ from datetime import datetime
 from exp.pipeline import pipeline_graph
 from exp.pipeline import pipeline_real
 from exp.examples import fixed_biadj_mat_list, conversion_dict
-from exp.examples import rand_biadj_mat_list, tcga_key_list, tcga_subsize
+from exp.examples import rand_biadj_mat_list, tcga_key_list
+from exp.examples import tcga_subsize, mnist_subsize
 from sklearn.preprocessing import StandardScaler
 from gloabl_settings import DATA_PATH
 import pandas as pd
@@ -120,9 +121,16 @@ def run_real_full(dataset_name, linspace, alphas, exp_path, seed):
     dataset_train = pd.DataFrame(sc.fit_transform(dataset_train), dataset_train.index, dataset_train.columns).values
     dataset_valid = pd.DataFrame(sc.fit_transform(dataset_valid), dataset_valid.index, dataset_valid.columns).values
 
+    if dataset_name == "tcga":
+        subsize = tcga_subsize
+    elif dataset_name == "mnist":
+        subsize = mnist_subsize
+    else:
+        raise ValueError("Invalid dataset name")
+
     graph_path = os.path.join(exp_path, f"Real_Full")
-    dataset_train = dataset_train[:, :tcga_subsize]
-    dataset_valid = dataset_valid[:, :tcga_subsize]
+    dataset_train = dataset_train[:, :subsize]
+    dataset_valid = dataset_valid[:, :subsize]
     dataset = [dataset_train, dataset_valid]
 
     if not os.path.isdir(graph_path):
