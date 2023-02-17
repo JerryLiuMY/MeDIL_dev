@@ -15,10 +15,12 @@ def train_vae(m, n, biadj_mat, train_loader, valid_loader, cov_train, cov_valid,
     :param biadj_mat: the adjacency matrix of the directed graph
     :param cov_train: covariance matrix for the training set
     :param cov_valid: covariance matrix for the validation set
+    :param seed: random seed for the experiments
     :return: trained model and training loss history
     """
 
     # load parameters
+    np.random.seed(seed)
     epoch, lr, beta = train_dict["epoch"], train_dict["lr"], train_dict["beta"]
 
     # building VAE

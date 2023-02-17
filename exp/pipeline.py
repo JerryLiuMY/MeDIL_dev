@@ -33,7 +33,7 @@ def pipeline_graph(biadj_mat, num_samps, alpha, path, seed):
     # learn MeDIL model and save graph
     print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Learning the MeDIL model")
     num_latent = biadj_mat.shape[0]
-    biadj_mat_hrstc, _, _, _ = estimation(biadj_mat, dim_obs, num_latent, samples, heuristic=True, alpha=alpha)
+    biadj_mat_hrstc, _, _, _ = estimation(biadj_mat, dim_obs, num_latent, samples, heuristic=True, alpha=alpha, seed=seed)
     np.save(os.path.join(path, "biadj_mat.npy"), biadj_mat)
     np.save(os.path.join(path, "biadj_mat_hrstc.npy"), biadj_mat_hrstc)
 
