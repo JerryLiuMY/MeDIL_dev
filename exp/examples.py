@@ -58,6 +58,15 @@ for i in range(10):
     mnist_key_list.append(np.random.choice(mnist_size, size=num_obs))
 
 
+# gene dataset
+gene_size, num_obs = 23, 8
+gene_key_list = []
+gene_subsize = 23
+for i in range(10):
+    np.random.seed(i)
+    gene_key_list.append(np.random.choice(gene_size, size=num_obs))
+
+
 # sub paths
 fixed_paths_list = [f"Graph_{i}" for i in string.ascii_lowercase[:9]]
 rand_paths_list = [f"Graph_{i}" for i in range(10)]
