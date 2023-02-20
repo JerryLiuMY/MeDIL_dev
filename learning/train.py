@@ -130,6 +130,9 @@ def elbo_gaussian(x, x_recon, cov, mu, logvar, beta):
     """
 
     # KL-divergence
+    # https://github.com/AntixK/PyTorch-VAE/blob/master/models/vanilla_vae.py
+    # https://github.com/AntixK/PyTorch-VAE/blob/master/models/beta_vae.py
+    # https://arxiv.org/pdf/1312.6114.pdf
     kl_div = - 0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
 
     # reconstruction loss
