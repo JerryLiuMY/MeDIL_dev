@@ -70,3 +70,11 @@ def sample_from_minMCM(minMCM, num_samps=1000, rng=default_rng(0)):
     samples = rng.multivariate_normal(np.zeros(len(cov)), cov, num_samps)
 
     return samples, cov
+
+
+def assign_redundant_latents(biadj_mat, variances, num_latents):
+    clique_variances = biadj_mat @ variances
+    clique_variances /= clique_variances.sum()
+    num_redundant = np.round(clique_variances * (num_latents - len(variances)))
+    total_latents += 1  # total l
+    return redundant_biadj_mat
