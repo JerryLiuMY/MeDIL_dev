@@ -68,7 +68,8 @@ def pipeline_real(dataset, alpha, path, seed):
 
     # learn MeDIL model and save graph
     print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Learning the MeDIL model")
-    biadj_mat_hrstc = estimation_real(samples, heuristic=True, alpha=alpha)
+    ud_graph, biadj_mat_hrstc = estimation_real(samples, heuristic=True, alpha=alpha)
+    np.save(os.path.join(path, "ud_graph.npy"), ud_graph)
     np.save(os.path.join(path, "biadj_mat_hrstc.npy"), biadj_mat_hrstc)
 
     # define VAE training and validation sample

@@ -60,7 +60,7 @@ def estimation(biadj_mat, num_obs, num_latent, samples, heuristic, alpha, seed):
     else:
         shd, ushd, biadj_mat_learned = find_learned(biadj_mat, biadj_mat_recon)
 
-    return biadj_mat_learned, shd, ushd, num_latent_recon
+    return ud_graph, biadj_mat_learned, shd, ushd, num_latent_recon
 
 
 def estimation_real(samples_out, heuristic=False, alpha=0.05):
@@ -82,7 +82,7 @@ def estimation_real(samples_out, heuristic=False, alpha=0.05):
     else:
         biadj_mat_recon = find_clique_min_cover(ud_graph)
 
-    return biadj_mat_recon
+    return ud_graph, biadj_mat_recon
 
 
 def find_learned(biadj_mat, biadj_mat_recon):
