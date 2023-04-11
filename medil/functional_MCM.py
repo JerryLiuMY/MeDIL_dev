@@ -72,10 +72,26 @@ def sample_from_minMCM(minMCM, num_samps=1000, rng=default_rng(0)):
     return samples, cov
 
 
-def assign_redundant_latents(biadj_mat, variances, num_latents):
-    clique_variances = biadj_mat @ variances
-    clique_variances /= clique_variances.sum()
-    num_extra = np.round(clique_variances * (num_latents - len(variances)))
-    total_latents = num_extra + 1
-    redundant_biadj_mat = np.repeat(biadj_mat, total_latents, axis=0)
+def assign_DoF(biadj_mat, deg_of_freedom, method, variances=None):
+    if method == "uniform":
+        pass
+    elif method == "clique_size":
+        pass
+    elif method == "tot_var" or method == "avg_var":
+        clique_variances = biadj_mat @ variances
+        clique_variances /= clique_variances.sum()
+        num_extra = np.round(clique_variances * (num_latents - len(variances)))
+        latent_per_clique = num_extra + 1
+    elif method == "avg_var":
+        clique_variances = (biadj_mat / biadj_mat.sum(1)) @ variances
+        clique_variances /= clique_variances.sum()
+        num_extra = np.round(clique_variances * (num_latents - len(variances)))
+        latent_per_clique = num_extra + 1
+
+    redundant_biadj_mat = np.repeat(biadj_mat, latents_per_clique, axis=0)
+    if deg_of_freedom != num_latents:
+        print(
+            "Input `deg_of_freedom={}` is less than the {} required for the estimated causal structure and assignment `method={}`. `deg_of_freedom` increased to {} to compensate."
+        )
+
     return redundant_biadj_mat
