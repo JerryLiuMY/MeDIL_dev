@@ -13,6 +13,7 @@ try:
     default_measure = "dcor"
 except ImportError:
     default_measure = "pearson"
+from xicorrelation import xicorr
 
 
 def hypothesis_test(samples, num_resamples, measure=default_measure, alpha=0.05):
@@ -230,7 +231,10 @@ def dcov(samples):
 def estimate_UDG(sample, method="dcov_fast", significance_level=0.05, precomputed=None):
     samp_size, num_feats = sample.shape
 
-    if method == "dcov_fast":
+    if precomputed is not None:
+        p_vals = precomputed
+        udg = p_vals < significance_level
+    elif method == "dcov_fast":
         cov, d_bars = dcov(sample)
         crit_val = chi2(1).ppf(1 - significance_level)
         test_val = samp_size * cov / np.outer(d_bars, d_bars)
@@ -238,24 +242,30 @@ def estimate_UDG(sample, method="dcov_fast", significance_level=0.05, precompute
         np.fill_diagonal(udg, False)
     elif method == "g-test":
         pass
-    elif method == "dcov_big":
-        p_vals = precomputed
-        if precomputed is None:
-            p_vals = np.zeros((num_feats, num_feats), float)
-            idxs, jdxs = np.triu_indices(num_feats, 1)
-            zipped = zip(idxs, jdxs)
-            sample_iter = (sample[:, i_j].T for i_j in zipped)
-            with Pool(12) as p:
-                p_vals[idxs, jdxs] = p_vals[jdxs, idxs] = np.fromiter(
-                    p.imap(test, sample_iter, 100), float
-                )
+    else:
+        p_vals = np.zeros((num_feats, num_feats), float)
+        idxs, jdxs = np.triu_indices(num_feats, 1)
+        zipped = zip(idxs, jdxs)
+        sample_iter = (sample[:, i_j].T for i_j in zipped)
+        if method == "dcov_big":
+            test = dcor_test
+        elif method == "xicor":
+            test = xicor_test
+        with Pool(12) as p:
+            p_vals[idxs, jdxs] = p_vals[jdxs, idxs] = np.fromiter(
+                p.imap(test, sample_iter, 100), float
+            )
             return (p_vals < significance_level), p_vals
-        else:
-            p_vals = precomputed
-            udg = p_vals < significance_level
+
     return udg
 
 
-def test(x_y):
+def dcor_test(x_y):
     x, y = x_y
     return distance_correlation_t_test(x, y).pvalue
+
+
+def xicor_test(x_y):
+    x, y = x_y
+    xi, pvalue = xicorr(x, y)
+    return pvalue
