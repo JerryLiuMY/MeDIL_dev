@@ -72,9 +72,18 @@ def sample_from_minMCM(minMCM, num_samps=1000, rng=default_rng(0)):
     return samples, cov
 
 
-def assign_DoF(biadj_mat, deg_of_freedom, method, variances=None):
+def assign_DoF(biadj_mat, deg_of_freedom, method="uniform", variances=None):
+    num_cliques = len(biadj_mat)
+    if deg_of_freedom < num_cliques:
+        print(
+            f"Input `deg_of_freedom={deg_of_freedom}` is less than the {num_cliques} required for the estimated causal structure. `deg_of_freedom` increased to {num_cliques} to compensate."
+        )
+        deg_of_freedom = num_cliques
+
     if method == "uniform":
-        pass
+        latents_per_clique = np.ones(num_cliques, int) * (deg_of_freedom // num_cliques)
+        remainder = deg_of_freedom % num_cliques
+        latents_per_clique[0:remainder] += 1
     elif method == "clique_size":
         pass
     elif method == "tot_var" or method == "avg_var":
@@ -89,9 +98,5 @@ def assign_DoF(biadj_mat, deg_of_freedom, method, variances=None):
         latent_per_clique = num_extra + 1
 
     redundant_biadj_mat = np.repeat(biadj_mat, latents_per_clique, axis=0)
-    if deg_of_freedom != num_latents:
-        print(
-            "Input `deg_of_freedom={}` is less than the {} required for the estimated causal structure and assignment `method={}`. `deg_of_freedom` increased to {} to compensate."
-        )
 
     return redundant_biadj_mat
