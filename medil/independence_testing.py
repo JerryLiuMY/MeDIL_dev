@@ -228,18 +228,18 @@ def dcov(samples):
     return dists @ dists.T / num_samps**2, d_bars
 
 
-def estimate_UDG(sample, method="dcov_fast", significance_level=0.05, precomputed=None):
+def estimate_UDG(sample, method="dcov_fast", significance_level=0.05):
     samp_size, num_feats = sample.shape
 
-    if precomputed is not None:
-        p_vals = precomputed
+    if isinstance(method, np.ndarray):
+        p_vals = method
         udg = p_vals < significance_level
     elif method == "dcov_fast":
         cov, d_bars = dcov(sample)
         crit_val = chi2(1).ppf(1 - significance_level)
         test_val = samp_size * cov / np.outer(d_bars, d_bars)
         udg = test_val >= crit_val
-        np.fill_diagonal(udg, False)
+        p_vals = None
     elif method == "g-test":
         pass
     else:
@@ -255,9 +255,9 @@ def estimate_UDG(sample, method="dcov_fast", significance_level=0.05, precompute
             p_vals[idxs, jdxs] = p_vals[jdxs, idxs] = np.fromiter(
                 p.imap(test, sample_iter, 100), float
             )
-            return (p_vals < significance_level), p_vals
-
-    return udg
+            udg = p_vals < significance_level)
+    np.fill_diagonal(udg, False)
+    return udg, p_vals
 
 
 def dcor_test(x_y):
