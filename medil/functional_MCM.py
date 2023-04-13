@@ -82,20 +82,19 @@ def assign_DoF(biadj_mat, deg_of_freedom, method="uniform", variances=None):
 
     if method == "uniform":
         latents_per_clique = np.ones(num_cliques, int) * (deg_of_freedom // num_cliques)
-        remainder = deg_of_freedom % num_cliques
-        latents_per_clique[0:remainder] += 1
     elif method == "clique_size":
-        pass
+        num_extra = np.round(biadj_mat.sum(1) * (deg_of_freedom - num_cliques))
+        latents_per_clique = num_extra + 1
     elif method == "tot_var" or method == "avg_var":
+        if method == "avg_var":
+            biadj_mat /= biadj_mat.sum(1)
         clique_variances = biadj_mat @ variances
         clique_variances /= clique_variances.sum()
-        num_extra = np.round(clique_variances * (num_latents - len(variances)))
-        latent_per_clique = num_extra + 1
-    elif method == "avg_var":
-        clique_variances = (biadj_mat / biadj_mat.sum(1)) @ variances
-        clique_variances /= clique_variances.sum()
-        num_extra = np.round(clique_variances * (num_latents - len(variances)))
-        latent_per_clique = num_extra + 1
+        num_extra = np.round(clique_variances * (deg_of_freedom - num_cliques))
+        latents_per_clique = num_extra + 1
+
+    remainder = deg_of_freedom - latents_per_clique.sum()
+    latents_per_clique[np.argsort(latents_per_clique)[0:remainder]] += 1
 
     redundant_biadj_mat = np.repeat(biadj_mat, latents_per_clique, axis=0)
 
