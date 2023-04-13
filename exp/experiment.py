@@ -1,6 +1,6 @@
 from datetime import datetime
 from exp.pipeline import pipeline_graph
-from exp.pipeline import pipeline_real
+from exp.pipeline import pipeline
 from exp.examples import fixed_biadj_mat_list, conversion_dict
 from exp.examples import rand_biadj_mat_list, tcga_key_list
 from exp.examples import tcga_subsize, mnist_subsize, gene_subsize
@@ -10,11 +10,13 @@ import pandas as pd
 import os
 
 
-def run_fixed(linspace, alphas, exp_path, seed):
+def run_fixed(linspace, heuristic, method, alphas, exp_path, seed):
     """ Run MeDIL on the fixed graphs
     Parameters
     ----------
     linspace: linspace for the number of samples
+    heuristic: whether to use heuristic or not
+    method: method for udg estimation
     alphas: list of alphas
     exp_path: path for the experiment
     seed: random seed for the experiments
@@ -33,14 +35,16 @@ def run_fixed(linspace, alphas, exp_path, seed):
                 folder_path = os.path.join(graph_path, folder_name)
                 if not os.path.isdir(folder_path):
                     os.mkdir(folder_path)
-                    pipeline_graph(biadj_mat, num_samps, alpha, folder_path, seed=seed)
+                    pipeline_graph(biadj_mat, num_samps, heuristic, method, alpha, folder_path, seed=seed)
 
 
-def run_random(linspace, alphas, exp_path, seed):
+def run_random(linspace, heuristic, method, alphas, exp_path, seed):
     """ Run MeDIL on the random graphs
     Parameters
     ----------
     linspace: linspace for the number of samples
+    heuristic: whether to use heuristic or not
+    method: method for udg estimation
     alphas: list of alphas
     exp_path: path for the experiment
     seed: random seed for the experiments
@@ -58,15 +62,17 @@ def run_random(linspace, alphas, exp_path, seed):
                 folder_path = os.path.join(graph_path, folder_name)
                 if not os.path.isdir(folder_path):
                     os.mkdir(folder_path)
-                    pipeline_graph(biadj_mat, num_samps, alpha, folder_path, seed=seed)
+                    pipeline_graph(biadj_mat, num_samps, heuristic, method, alpha, folder_path, seed=seed)
 
 
-def run_real(dataset_name, linspace, alphas, exp_path, seed):
+def run_real(dataset_name, linspace, heuristic, method, alphas, exp_path, seed):
     """ Run MeDIL on real dataset
     Parameters
     ----------
     dataset_name: name of dataset
     linspace: linspace for the number of samples
+    heuristic: whether to use heuristic or not
+    method: method for udg estimation
     alphas: list of alphas
     exp_path: path for the experiment
     seed: random seed for the experiments
@@ -100,15 +106,17 @@ def run_real(dataset_name, linspace, alphas, exp_path, seed):
                 folder_path = os.path.join(graph_path, folder_name)
                 if not os.path.isdir(folder_path):
                     os.mkdir(folder_path)
-                    pipeline_real(dataset, alpha, folder_path, seed=seed)
+                    pipeline(dataset, heuristic, method, alpha, folder_path, seed=seed)
 
 
-def run_real_full(dataset_name, linspace, alphas, exp_path, seed):
+def run_real_full(dataset_name, linspace, heuristic, method, alphas, exp_path, seed):
     """ Run MeDIL on real dataset
     Parameters
     ----------
     dataset_name: name of dataset
     linspace: linspace for the number of samples
+    heuristic: whether to use heuristic or not
+    method: method for udg estimation
     alphas: list of alphas
     exp_path: path for the experiment
     seed: random seed for the experiments
@@ -145,4 +153,4 @@ def run_real_full(dataset_name, linspace, alphas, exp_path, seed):
             folder_path = os.path.join(graph_path, folder_name)
             if not os.path.isdir(folder_path):
                 os.mkdir(folder_path)
-                pipeline_real(dataset, alpha, folder_path, seed=seed)
+                pipeline(dataset, heuristic, method, alpha, folder_path, seed=seed)

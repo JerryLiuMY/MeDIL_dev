@@ -77,7 +77,7 @@ def train_vae(m, n, biadj_mat, train_loader, valid_loader, cov_train, cov_valid,
     elbo = [train_elbo, valid_elbo]
     error = [train_error, valid_error]
 
-    return elbo, error
+    return model, elbo, error
 
 
 def valid_vae(model, valid_loader, cov_valid):
