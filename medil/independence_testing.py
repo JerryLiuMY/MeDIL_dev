@@ -1,7 +1,7 @@
 """Independence testing on samples of random variables."""
 import numpy as np
 from scipy.spatial.distance import pdist, squareform, cdist
-from multiprocessing import Pool
+from multiprocessing import Pool, cpu_count
 
 from numpy import linalg as LA
 from scipy.stats import chi2
@@ -251,7 +251,7 @@ def estimate_UDG(sample, method="dcov_fast", significance_level=0.05):
             test = dcor_test
         elif method == "xicor":
             test = xicor_test
-        with Pool(12) as p:
+        with Pool(int(0.75 * cpu_count())) as p:
             p_vals[idxs, jdxs] = p_vals[jdxs, idxs] = np.fromiter(
                 p.imap(test, sample_iter, 100), float
             )
