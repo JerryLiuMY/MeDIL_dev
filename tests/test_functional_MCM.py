@@ -4,7 +4,14 @@ import warnings
 
 
 def test_rand_biadj_mat():
-    pass
+    num_obs = 20
+    max_edges = (num_obs * (num_obs - 1)) // 2
+    for edge_prob in np.arange(0, 1.1, 0.1):
+        biadj_mat = rand_biadj_mat(num_obs, edge_prob)
+        assert biadj_mat.sum(1).all()
+        udg = (biadj_mat.T @ biadj_mat).astype(bool)
+        density = np.triu(udg, 1).sum() / max_edges
+        assert np.isclose(edge_prob, density)
 
 
 def test_sample_from_minMCM():
