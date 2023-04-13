@@ -38,7 +38,7 @@ def sample_from_minMCM(minMCM, num_samps=1000, rng=default_rng(0)):
     """Sample from the minMCM graph: minMCM should either be the binary bi-adjacency matrix or covariance matrix
     Parameters
     ----------
-    minMCM: adjacency matrix of the minMCM
+    minMCM: covariance matrix over full MCM or boolean biadjacency matrix of MCM (for which random cov matrix will be generated)
     num_samps: number of samples
     rng: random generator
 
