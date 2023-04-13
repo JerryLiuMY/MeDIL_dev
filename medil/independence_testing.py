@@ -251,7 +251,7 @@ def estimate_UDG(sample, method="dcov_fast", significance_level=0.05):
             test = dcor_test
         elif method == "xicor":
             test = xicor_test
-        with Pool(int(0.75 * cpu_count())) as p:
+        with Pool(max(1, int(0.75 * cpu_count()))) as p:
             p_vals[idxs, jdxs] = p_vals[jdxs, idxs] = np.fromiter(
                 p.imap(test, sample_iter, 100), float
             )
