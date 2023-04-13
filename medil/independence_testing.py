@@ -255,7 +255,7 @@ def estimate_UDG(sample, method="dcov_fast", significance_level=0.05):
             p_vals[idxs, jdxs] = p_vals[jdxs, idxs] = np.fromiter(
                 p.imap(test, sample_iter, 100), float
             )
-            udg = p_vals < significance_level)
+            udg = (p_vals < significance_level)
     np.fill_diagonal(udg, False)
     return udg, p_vals
 

@@ -19,16 +19,24 @@ def main(dataset_name, parent_path):
     heuristic = True
     method = "dcov_fast"
 
-    for run in range(10):
-        # real dataset
-        exp_path = os.path.join(parent_path, f"experiment_{run}")
-        if not os.path.isdir(exp_path):
-            os.mkdir(exp_path)
+    run = 1
+    exp_path = os.path.join(parent_path, f"experiment_{run}")
+    if not os.path.isdir(exp_path):
+        os.mkdir(exp_path)
 
-        # fixed and random dataset
-        run_fixed(linspace_graph, heuristic, method, alphas, exp_path, seed=run)
-        run_random(linspace_graph, heuristic, method, alphas, exp_path, seed=run)
-        # run_real(dataset_name, linspace_real, heuristic, method, alphas, exp_path, seed=run)
+    # fixed and random dataset
+    run_fixed(linspace_graph, heuristic, method, alphas, exp_path, seed=run)
+
+    # for run in range(10):
+    #     # real dataset
+    #     exp_path = os.path.join(parent_path, f"experiment_{run}")
+    #     if not os.path.isdir(exp_path):
+    #         os.mkdir(exp_path)
+    #
+    #     # fixed and random dataset
+    #     run_fixed(linspace_graph, heuristic, method, alphas, exp_path, seed=run)
+    #     run_random(linspace_graph, heuristic, method, alphas, exp_path, seed=run)
+    #     run_real(dataset_name, linspace_real, heuristic, method, alphas, exp_path, seed=run)
 
     # run = 1
     # exp_path = os.path.join(parent_path, f"experiment_{run}")
