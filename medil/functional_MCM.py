@@ -2,6 +2,7 @@
 from .ecc_algorithms import find_heuristic_clique_cover as find_cm
 from numpy.random import default_rng
 import numpy as np
+import warnings
 
 
 def rand_biadj_mat(num_obs, edge_prob, rng=default_rng(0)):
@@ -10,11 +11,11 @@ def rand_biadj_mat(num_obs, edge_prob, rng=default_rng(0)):
     ----------
     num_obs: dimension of the observed space
     edge_prob: edge probability
-    rng: type of random generator
+    rng: random generator
 
     Returns
     -------
-    biadj_mat: adjacency matrix of the directed graph
+    biadj_mat: biadjacency matrix of the directed graph, with entry (i,j) indicating an edge from latent variable L_i to measurement variable M_j
     """
 
     udg = np.zeros((num_obs, num_obs), bool)
@@ -38,7 +39,7 @@ def sample_from_minMCM(minMCM, num_samps=1000, rng=default_rng(0)):
     ----------
     minMCM: adjacency matrix of the minMCM
     num_samps: number of samples
-    rng: type of random generator
+    rng: random generator
 
     Returns
     -------
@@ -73,9 +74,21 @@ def sample_from_minMCM(minMCM, num_samps=1000, rng=default_rng(0)):
 
 
 def assign_DoF(biadj_mat, deg_of_freedom, method="uniform", variances=None):
+    """Assign degrees of freedom (latent variables) of VAE to latent factors from causal structure learning
+    Parameters
+    ----------
+    biadj_mat: biadjacency matrix of MCM
+    deg_of_freedom: desired size of latent space of VAE
+    method: how to distribute excess degrees of freedom to latent causal factors
+    variances: diag of covariance matrix over measurement variables
+
+    Returns
+    -------
+    redundant_biadj_mat: biadjacency matrix specifing VAE structure from latent space to decoder
+    """
     num_cliques = len(biadj_mat)
     if deg_of_freedom < num_cliques:
-        print(
+        warnings.warn(
             f"Input `deg_of_freedom={deg_of_freedom}` is less than the {num_cliques} required for the estimated causal structure. `deg_of_freedom` increased to {num_cliques} to compensate."
         )
         deg_of_freedom = num_cliques
@@ -83,18 +96,19 @@ def assign_DoF(biadj_mat, deg_of_freedom, method="uniform", variances=None):
     if method == "uniform":
         latents_per_clique = np.ones(num_cliques, int) * (deg_of_freedom // num_cliques)
     elif method == "clique_size":
-        num_extra = np.round(biadj_mat.sum(1) * (deg_of_freedom - num_cliques))
-        latents_per_clique = num_extra + 1
+        latents_per_clique = np.round(
+            (biadj_mat.sum(1) / biadj_mat.sum()) * (deg_of_freedom - num_cliques)
+        ).astype(int)
     elif method == "tot_var" or method == "avg_var":
         if method == "avg_var":
             biadj_mat /= biadj_mat.sum(1)
         clique_variances = biadj_mat @ variances
         clique_variances /= clique_variances.sum()
-        num_extra = np.round(clique_variances * (deg_of_freedom - num_cliques))
-        latents_per_clique = num_extra + 1
+        latents_per_clique = np.round(clique_variances * (deg_of_freedom - num_cliques))
 
-    remainder = deg_of_freedom - latents_per_clique.sum()
-    latents_per_clique[np.argsort(latents_per_clique)[0:remainder]] += 1
+    for _ in range(2):
+        remainder = deg_of_freedom - latents_per_clique.sum()
+        latents_per_clique[np.argsort(latents_per_clique)[0:remainder]] += 1
 
     redundant_biadj_mat = np.repeat(biadj_mat, latents_per_clique, axis=0)
 
