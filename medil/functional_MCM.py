@@ -101,11 +101,13 @@ def assign_DoF(biadj_mat, deg_of_freedom, method="uniform", variances=None):
             (biadj_mat.sum(1) / biadj_mat.sum()) * (deg_of_freedom - num_cliques)
         ).astype(int)
     elif method == "tot_var" or method == "avg_var":
-        if method == "avg_var":
-            biadj_mat /= biadj_mat.sum(1)
         clique_variances = biadj_mat @ variances
+        if method == "avg_var":
+            clique_variances /= biadj_mat.sum(1)
         clique_variances /= clique_variances.sum()
-        latents_per_clique = np.round(clique_variances * (deg_of_freedom - num_cliques))
+        latents_per_clique = np.round(
+            clique_variances * (deg_of_freedom - num_cliques)
+        ).astype(int)
 
     for _ in range(2):
         remainder = deg_of_freedom - latents_per_clique.sum()

@@ -20,6 +20,7 @@ def test_sample_from_minMCM():
 
 def test_assign_DoF():
     biadj_mat = np.array([[0, 0, 1, 1, 1], [0, 1, 0, 1, 0], [1, 0, 1, 0, 0]])
+    variances = np.array([2.5, 0.33, 2.5, 0.66, 0.88])
 
     warnings.filterwarnings("error")
     try:
@@ -45,9 +46,18 @@ def test_assign_DoF():
     assert max(counts_clique) == 4
     assert counts_clique.sum() == 11
 
-    # need to test total and avg var still
+    test_tot = assign_DoF(biadj_mat, 13, "tot_var", variances)
+    unique_tot, counts_tot = np.unique(test_tot, axis=0, return_counts=True)
+    assert (biadj_mat == unique_tot).all()
+    assert ((5, 2, 6) == counts_tot).all()
 
-    # make sure there are no rounding errors, regardless of method
-    # for dof in range(3, 12):
-    #     for method in ("uniform", "clique_size", "total_var", "avg_var"):
-    #         pass
+    test_avg = assign_DoF(biadj_mat, 29, "avg_var", variances)
+    unique_avg, counts_avg = np.unique(test_avg, axis=0, return_counts=True)
+    assert (biadj_mat == unique_avg).all()
+    assert ((9, 4, 16) == counts_avg).all()
+
+    for dof in range(3, 12):
+        for method in ("uniform", "clique_size", "tot_var", "avg_var"):
+            test_rounding = assign_DoF(biadj_mat, dof, method, variances)
+            assert (np.unique(test_rounding, axis=0) == biadj_mat).all()
+            assert dof == len(test_rounding)
