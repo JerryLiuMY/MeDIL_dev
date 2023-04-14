@@ -1,6 +1,7 @@
 import numpy as np
 from medil.functional_MCM import rand_biadj_mat, sample_from_minMCM, assign_DoF
 import warnings
+from medil.examples import examples
 
 
 def test_rand_biadj_mat():
@@ -15,7 +16,17 @@ def test_rand_biadj_mat():
 
 
 def test_sample_from_minMCM():
-    pass
+    biadj_mat = examples[1].MCM.astype(bool)
+    _, cov = sample_from_minMCM(biadj_mat)
+
+    obs_cov = cov[3:, :][:, 3:]
+    true_indeps = np.array([0, 33, 32, 31, 30, 28])
+    test_indeps = np.argsort(np.abs(np.triu(obs_cov, 1).flatten()))
+    assert np.in1d(test_indeps[:6], true_indeps).all()
+
+    test_sample, _ = sample_from_minMCM(cov)
+    test_cov = np.cov(test_sample, rowvar=False)
+    assert np.allclose(test_cov, cov, rtol=0.2, atol=0.3)
 
 
 def test_assign_DoF():
