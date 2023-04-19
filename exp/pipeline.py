@@ -35,11 +35,11 @@ def pipeline_graph(biadj_mat, num_samps, heuristic, method, alpha, path, seed):
     # learn MeDIL model and save graph
     print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Learning the MeDIL model")
     num_latent = biadj_mat.shape[0]
-    ud_graph, biadj_mat_recon = estimation(samples, heuristic=heuristic, method=method, alpha=alpha)
+    ud_graph, biadj_mat_recon = estimation(samples[:, num_latent:], heuristic=heuristic, method=method, alpha=alpha)
     info = {"heuristic": heuristic, "method": method, "alpha": alpha}
     np.save(os.path.join(path, "biadj_mat.npy"), biadj_mat)
     np.save(os.path.join(path, "biadj_mat_recon.npy"), biadj_mat_recon)
-    with open("info.pkl", "wb") as f:
+    with open(os.path.join(path, "info.pkl"), "wb") as f:
         pickle.dump(info, f)
 
     # define VAE training and validation sample

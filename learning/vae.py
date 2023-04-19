@@ -40,7 +40,7 @@ class Encoder(Block):
 
         # first encoder layer
         self.inter_dim = self.input_dim
-        self.enc1 = nn.Linear(in_features=self.inter_dim, out_features=self.inter_dim)
+        self.enc1 = nn.Linear(in_features=self.input_dim, out_features=self.inter_dim)
 
         # second encoder layer
         self.enc2 = nn.Linear(in_features=self.inter_dim, out_features=self.inter_dim)

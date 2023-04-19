@@ -20,7 +20,7 @@ def estimation(samples_out, heuristic=False, method="dcov_fast", alpha=0.05):
     """
 
     # step 1: estimate UDG
-    ud_graph = estimate_UDG(samples_out, method=method, significance_level=alpha)
+    ud_graph, p_vals = estimate_UDG(samples_out, method=method, significance_level=alpha)
     np.fill_diagonal(ud_graph, val=True)
 
     # step 2: learn graphical MCM
