@@ -1,5 +1,6 @@
 from medil.functional_MCM import sample_from_minMCM
 from graph_est.estimation import estimation
+from exp.analysis import analysis
 import numpy as np
 import pandas as pd
 import time
@@ -32,9 +33,10 @@ def testing(biadj_mat, num_runs, num_samps):
         for j in linspace:
             print(f"Working on num_run={i} and num_sample={j}")
             t0 = time.time()
-            biadj_mat_learned, shd, ushd, num_latent_recon = estimation(biadj_mat, num_obs, num_latent, samples[:j, :])
+            biadj_mat_recon = estimation(biadj_mat, num_obs, num_latent, samples[:j, :])
             t1 = time.time()
 
+            shd, ushd, num_latent_recon = analysis(biadj_mat, num_obs, num_latent, biadj_mat_recon)
             shd_df.loc[i, j] = shd
             ushd_df.loc[i, j] = ushd
             diff_df.loc[i, j] = abs(num_latent - num_latent_recon)

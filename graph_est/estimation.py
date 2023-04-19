@@ -29,4 +29,4 @@ def estimation(samples_out, heuristic=False, method="dcov_fast", alpha=0.05):
     else:
         biadj_mat_recon = find_clique_min_cover(ud_graph)
 
-    return ud_graph, biadj_mat_recon
+    return biadj_mat_recon

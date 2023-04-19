@@ -1,6 +1,7 @@
 from exp.run_funcs import run_vae_oracle, run_vae_suite
 from medil.functional_MCM import sample_from_minMCM
 from learning.data_loader import load_dataset, load_dataset_real
+from exp.analysis import recover_ug
 from graph_est.estimation import estimation
 from learning.params import params_dict
 from datetime import datetime
@@ -35,10 +36,16 @@ def pipeline_graph(biadj_mat, num_samps, heuristic, method, alpha, path, seed):
     # learn MeDIL model and save graph
     print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Learning the MeDIL model")
     num_latent = biadj_mat.shape[0]
-    ud_graph, biadj_mat_recon = estimation(samples[:, num_latent:], heuristic=heuristic, method=method, alpha=alpha)
-    info = {"heuristic": heuristic, "method": method, "alpha": alpha}
+    biadj_mat_recon = estimation(samples[:, num_latent:], heuristic=heuristic, method=method, alpha=alpha)
     np.save(os.path.join(path, "biadj_mat.npy"), biadj_mat)
     np.save(os.path.join(path, "biadj_mat_recon.npy"), biadj_mat_recon)
+
+    ud_graph = recover_ug(biadj_mat)
+    ud_graph_recon = recover_ug(biadj_mat_recon)
+    np.save(os.path.join(path, "ud_graph.npy"), ud_graph)
+    np.save(os.path.join(path, "ud_graph_recon.npy"), ud_graph_recon)
+
+    info = {"heuristic": heuristic, "method": method, "alpha": alpha}
     with open(os.path.join(path, "info.pkl"), "wb") as f:
         pickle.dump(info, f)
 
@@ -75,10 +82,13 @@ def pipeline(dataset, heuristic, method, alpha, path, seed):
 
     # learn MeDIL model and save graph
     print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Learning the MeDIL model")
-    ud_graph, biadj_mat_recon = estimation(samples, heuristic=heuristic, method=method, alpha=alpha)
-    info = {"heuristic": heuristic, "method": method, "alpha": alpha}
-    np.save(os.path.join(path, "ud_graph.npy"), ud_graph)
+    biadj_mat_recon = estimation(samples, heuristic=heuristic, method=method, alpha=alpha)
     np.save(os.path.join(path, "biadj_mat_recon.npy"), biadj_mat_recon)
+
+    ud_graph_recon = recover_ug(biadj_mat_recon)
+    np.save(os.path.join(path, "ud_graph_recon.npy"), ud_graph_recon)
+
+    info = {"heuristic": heuristic, "method": method, "alpha": alpha}
     with open("info.pkl", "wb") as f:
         pickle.dump(info, f)
 
