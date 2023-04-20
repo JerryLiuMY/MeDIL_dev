@@ -74,7 +74,7 @@ def sample_from_minMCM(minMCM, num_samps=1000, rng=default_rng(0)):
     return samples, cov
 
 
-def assign_DoF(biadj_mat, deg_of_freedom, method="uniform", variances=None):
+def assign_DoF(biadj_mat, deg_of_freedom=None, method="uniform", variances=None):
     """Assign degrees of freedom (latent variables) of VAE to latent factors from causal structure learning
     Parameters
     ----------
@@ -87,8 +87,11 @@ def assign_DoF(biadj_mat, deg_of_freedom, method="uniform", variances=None):
     -------
     redundant_biadj_mat: biadjacency matrix specifing VAE structure from latent space to decoder
     """
-    num_cliques = len(biadj_mat)
-    if deg_of_freedom < num_cliques:
+    num_cliques, num_obs = biadj_mat.shape
+    if deg_of_freedom is None:
+        # then default to upper bound; TODO: change to max_intersect_num from medil.ecc_algorithms
+        deg_of_freedom = num_obs**2 // 4
+    elif deg_of_freedom < num_cliques:
         warnings.warn(
             f"Input `deg_of_freedom={deg_of_freedom}` is less than the {num_cliques} required for the estimated causal structure. `deg_of_freedom` increased to {num_cliques} to compensate."
         )
