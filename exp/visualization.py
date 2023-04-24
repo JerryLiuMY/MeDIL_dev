@@ -21,9 +21,9 @@ def plot_learning(loss_true, loss_medil, loss_vanilla, biadj_mat):
     [train_loss_true, valid_loss_true] = loss_true
     [train_loss_medil, valid_loss_medil] = loss_medil
     [train_loss_vanilla, valid_loss_vanilla] = loss_vanilla
-    fig, ax = plt.subplots(1, 1, figsize=(14, 7))
 
     # plot train_llh and valid_llh
+    fig, ax = plt.subplots(1, 1, figsize=(14, 7))
     ax.set_title(f"Learning curve of loss functions [dim_latent={m}, dim_obs={n}]")
     ax.plot(train_loss_true, color=sns.color_palette()[0], label="true_train")
     ax.plot(train_loss_medil, color=sns.color_palette()[1], label="medil_train")
