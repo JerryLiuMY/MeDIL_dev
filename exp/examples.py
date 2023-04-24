@@ -74,8 +74,8 @@ for i in range(10):
 # paths_list = fixed_paths_list + rand_paths_list + real_paths_list
 
 # sub paths
-fixed_paths_list = [f"Graph_{i}" for i in string.ascii_lowercase[:4]]
-rand_paths_list = [f"Graph_{i}" for i in range(5)]
+fixed_paths_list = [f"Graph_{i}" for i in string.ascii_lowercase[:9]]
+rand_paths_list = [f"Graph_{i}" for i in range(10)]
 paths_list = fixed_paths_list + rand_paths_list
 
 
