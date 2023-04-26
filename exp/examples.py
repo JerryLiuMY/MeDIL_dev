@@ -33,9 +33,9 @@ fixed_biadj_mat_list = [
 
 
 # random graph
-num_obs = 8
+num_obs = [8, 15, ]
 rand_biadj_mat_list = []
-for i in range(10):
+for i, num_obs in zip(range(10), num_obs):
     np.random.seed(i)
     rand_biadj_mat_list.append(rand_biadj_mat(num_obs=num_obs, edge_prob=np.random.uniform(size=1)[0]))
 

@@ -3,6 +3,7 @@ from medil.functional_MCM import sample_from_minMCM
 from learning.data_loader import load_dataset, load_dataset_real
 from exp.analysis import recover_ug
 from graph_est.estimation import estimation
+from medil.functional_MCM import assign_DoF
 from learning.params import params_dict
 from datetime import datetime
 import numpy as np
@@ -11,7 +12,7 @@ import time
 import os
 
 
-def pipeline_graph(biadj_mat, num_samps, heuristic, method, alpha, path, seed):
+def pipeline_graph(biadj_mat, num_samps, heuristic, method, alpha, dof, dof_method, path, seed):
     """ Pipeline function for estimating the shd and number of reconstructed latent
     Parameters
     ----------
@@ -20,6 +21,8 @@ def pipeline_graph(biadj_mat, num_samps, heuristic, method, alpha, path, seed):
     heuristic: whether to use heuristic or not
     method: method for udg estimation
     alpha: significance level
+    dof: desired size of latent space of VAE
+    dof_method: how to distribute excess degrees of freedom to latent causal factors
     path: path for saving the files
     seed: random seed for the experiments
     """
@@ -37,15 +40,17 @@ def pipeline_graph(biadj_mat, num_samps, heuristic, method, alpha, path, seed):
     print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Learning the MeDIL model")
     num_latent = biadj_mat.shape[0]
     biadj_mat_recon = estimation(samples[:, num_latent:], heuristic=heuristic, method=method, alpha=alpha)
+    biadj_mat_redundant = assign_DoF(biadj_mat_recon, deg_of_freedom=dof, method=dof_method)
     np.save(os.path.join(path, "biadj_mat.npy"), biadj_mat)
     np.save(os.path.join(path, "biadj_mat_recon.npy"), biadj_mat_recon)
+    np.save(os.path.join(path, "biadj_mat_redundant.npy"), biadj_mat_redundant)
 
     ud_graph = recover_ug(biadj_mat)
     ud_graph_recon = recover_ug(biadj_mat_recon)
     np.save(os.path.join(path, "ud_graph.npy"), ud_graph)
     np.save(os.path.join(path, "ud_graph_recon.npy"), ud_graph_recon)
 
-    info = {"heuristic": heuristic, "method": method, "alpha": alpha}
+    info = {"heuristic": heuristic, "method": method, "alpha": alpha, "dof": dof, "dof_method": dof_method}
     with open(os.path.join(path, "info.pkl"), "wb") as f:
         pickle.dump(info, f)
 
@@ -60,10 +65,10 @@ def pipeline_graph(biadj_mat, num_samps, heuristic, method, alpha, path, seed):
 
     # perform vae training
     run_vae_oracle(biadj_mat, train_loader, valid_loader, cov_train, cov_valid, path, seed)
-    run_vae_suite(biadj_mat_recon, train_loader, valid_loader, cov_train, cov_valid, path, seed)
+    run_vae_suite(biadj_mat_redundant, train_loader, valid_loader, cov_train, cov_valid, path, seed)
 
 
-def pipeline(dataset, heuristic, method, alpha, path, seed):
+def pipeline(dataset, heuristic, method, alpha, dof, dof_method, path, seed):
     """ Pipeline function for estimating the shd and number of reconstructed latent
     Parameters
     ----------
@@ -71,6 +76,8 @@ def pipeline(dataset, heuristic, method, alpha, path, seed):
     heuristic: whether to use heuristic or not
     method: method for udg estimation
     alpha: significance level
+    dof: desired size of latent space of VAE
+    dof_method: how to distribute excess degrees of freedom to latent causal factors
     path: path for saving the files
     seed: random seed
     """
@@ -83,12 +90,14 @@ def pipeline(dataset, heuristic, method, alpha, path, seed):
     # learn MeDIL model and save graph
     print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Learning the MeDIL model")
     biadj_mat_recon = estimation(samples, heuristic=heuristic, method=method, alpha=alpha)
+    biadj_mat_redundant = assign_DoF(biadj_mat_recon, deg_of_freedom=dof, method=dof_method)
     np.save(os.path.join(path, "biadj_mat_recon.npy"), biadj_mat_recon)
+    np.save(os.path.join(path, "biadj_mat_redundant.npy"), biadj_mat_redundant)
 
     ud_graph_recon = recover_ug(biadj_mat_recon)
     np.save(os.path.join(path, "ud_graph_recon.npy"), ud_graph_recon)
 
-    info = {"heuristic": heuristic, "method": method, "alpha": alpha}
+    info = {"heuristic": heuristic, "method": method, "alpha": alpha, "dof": dof, "dof_method": dof_method}
     with open("info.pkl", "wb") as f:
         pickle.dump(info, f)
 

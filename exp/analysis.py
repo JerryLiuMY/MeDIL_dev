@@ -155,14 +155,6 @@ def build_table(order_n, alpha):
                 sub_table.loc[path, "error_true_train"] = error_true[0][-1]
                 sub_table.loc[path, "error_true_valid"] = error_true[1][-1]
 
-                # exact graph
-                loss_exact = pd.read_pickle(os.path.join(result_path, "loss_recon.pkl"))
-                error_exact = pd.read_pickle(os.path.join(result_path, "error_recon.pkl"))
-                sub_table.loc[path, "loss_exact_train"] = loss_exact[0][-1]
-                sub_table.loc[path, "loss_exact_valid"] = loss_exact[1][-1]
-                sub_table.loc[path, "error_exact_train"] = error_exact[0][-1]
-                sub_table.loc[path, "error_exact_valid"] = error_exact[1][-1]
-
                 # SHD for reconstruction
                 biadj_mat = np.load(os.path.join(result_path, "biadj_mat.npy"))
                 biadj_mat_recon = np.load(os.path.join(result_path, "biadj_mat_recon.npy"))

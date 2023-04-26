@@ -87,6 +87,7 @@ def assign_DoF(biadj_mat, deg_of_freedom=None, method="uniform", variances=None)
     -------
     redundant_biadj_mat: biadjacency matrix specifing VAE structure from latent space to decoder
     """
+
     num_cliques, num_obs = biadj_mat.shape
     if deg_of_freedom is None:
         # then default to upper bound; TODO: change to max_intersect_num from medil.ecc_algorithms

@@ -10,7 +10,7 @@ import pandas as pd
 import os
 
 
-def run_fixed(linspace, heuristic, method, alphas, exp_path, seed):
+def run_fixed(linspace, heuristic, method, alphas, dof, dof_method, exp_path, seed):
     """ Run MeDIL on the fixed graphs
     Parameters
     ----------
@@ -18,6 +18,8 @@ def run_fixed(linspace, heuristic, method, alphas, exp_path, seed):
     heuristic: whether to use heuristic or not
     method: method for udg estimation
     alphas: list of alphas
+    dof: desired size of latent space of VAE
+    dof_method: how to distribute excess degrees of freedom to latent causal factors
     exp_path: path for the experiment
     seed: random seed for the experiments
     """
@@ -35,10 +37,12 @@ def run_fixed(linspace, heuristic, method, alphas, exp_path, seed):
                 folder_path = os.path.join(graph_path, folder_name)
                 if not os.path.isdir(folder_path):
                     os.mkdir(folder_path)
-                    pipeline_graph(biadj_mat, num_samps, heuristic, method, alpha, folder_path, seed=seed)
+                    pipeline_graph(
+                        biadj_mat, num_samps, heuristic, method, alpha, dof, dof_method, folder_path, seed=seed
+                    )
 
 
-def run_random(linspace, heuristic, method, alphas, exp_path, seed):
+def run_random(linspace, heuristic, method, alphas, dof, dof_method, exp_path, seed):
     """ Run MeDIL on the random graphs
     Parameters
     ----------
@@ -46,6 +50,8 @@ def run_random(linspace, heuristic, method, alphas, exp_path, seed):
     heuristic: whether to use heuristic or not
     method: method for udg estimation
     alphas: list of alphas
+    dof: desired size of latent space of VAE
+    dof_method: how to distribute excess degrees of freedom to latent causal factors
     exp_path: path for the experiment
     seed: random seed for the experiments
     """
@@ -62,10 +68,12 @@ def run_random(linspace, heuristic, method, alphas, exp_path, seed):
                 folder_path = os.path.join(graph_path, folder_name)
                 if not os.path.isdir(folder_path):
                     os.mkdir(folder_path)
-                    pipeline_graph(biadj_mat, num_samps, heuristic, method, alpha, folder_path, seed=seed)
+                    pipeline_graph(
+                        biadj_mat, num_samps, heuristic, method, alpha, dof, dof_method, folder_path, seed=seed
+                    )
 
 
-def run_real(dataset_name, linspace, heuristic, method, alphas, exp_path, seed):
+def run_real(dataset_name, linspace, heuristic, method, alphas, dof, dof_method, exp_path, seed):
     """ Run MeDIL on real dataset
     Parameters
     ----------
@@ -74,6 +82,8 @@ def run_real(dataset_name, linspace, heuristic, method, alphas, exp_path, seed):
     heuristic: whether to use heuristic or not
     method: method for udg estimation
     alphas: list of alphas
+    dof: desired size of latent space of VAE
+    dof_method: how to distribute excess degrees of freedom to latent causal factors
     exp_path: path for the experiment
     seed: random seed for the experiments
     """
@@ -106,10 +116,10 @@ def run_real(dataset_name, linspace, heuristic, method, alphas, exp_path, seed):
                 folder_path = os.path.join(graph_path, folder_name)
                 if not os.path.isdir(folder_path):
                     os.mkdir(folder_path)
-                    pipeline(dataset, heuristic, method, alpha, folder_path, seed=seed)
+                    pipeline(dataset, heuristic, method, alpha, dof, dof_method, folder_path, seed=seed)
 
 
-def run_real_full(dataset_name, linspace, heuristic, method, alphas, exp_path, seed):
+def run_real_full(dataset_name, linspace, heuristic, method, alphas, dof, dof_method, exp_path, seed):
     """ Run MeDIL on real dataset
     Parameters
     ----------
@@ -118,6 +128,8 @@ def run_real_full(dataset_name, linspace, heuristic, method, alphas, exp_path, s
     heuristic: whether to use heuristic or not
     method: method for udg estimation
     alphas: list of alphas
+    dof: desired size of latent space of VAE
+    dof_method: how to distribute excess degrees of freedom to latent causal factors
     exp_path: path for the experiment
     seed: random seed for the experiments
     """
@@ -153,4 +165,4 @@ def run_real_full(dataset_name, linspace, heuristic, method, alphas, exp_path, s
             folder_path = os.path.join(graph_path, folder_name)
             if not os.path.isdir(folder_path):
                 os.mkdir(folder_path)
-                pipeline(dataset, heuristic, method, alpha, folder_path, seed=seed)
+                pipeline(dataset, heuristic, method, alpha, dof, dof_method, folder_path, seed=seed)

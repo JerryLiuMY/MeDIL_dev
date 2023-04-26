@@ -15,9 +15,14 @@ def main(dataset_name, parent_path):
     parent_path: parent path for the experiments
     """
 
+    # argument for estimation
     alphas = [0.01, 0.05, 0.1, 0.2, 0.5, 0.9]
     heuristic = True
     method = "dcov_fast"
+
+    # argument for architecture
+    dof = None
+    dof_method = "uniform"
 
     for run in range(10):
         # real dataset
@@ -26,10 +31,10 @@ def main(dataset_name, parent_path):
             os.mkdir(exp_path)
 
         # fixed and random dataset
-        run_fixed(linspace_graph, heuristic, method, alphas, exp_path, seed=run)
-        run_random(linspace_graph, heuristic, method, alphas, exp_path, seed=run)
-        run_real(dataset_name, linspace_real, heuristic, method, alphas, exp_path, seed=run)
-        run_real_full(dataset_name, linspace_real, heuristic, method, alphas, exp_path, seed=run)
+        run_fixed(linspace_graph, heuristic, method, alphas, dof, dof_method, exp_path, seed=run)
+        run_random(linspace_graph, heuristic, method, alphas, dof, dof_method, exp_path, seed=run)
+        run_real(dataset_name, linspace_real, heuristic, method, alphas, dof, dof_method, exp_path, seed=run)
+        run_real_full(dataset_name, linspace_real, heuristic, method, alphas, dof, dof_method, exp_path, seed=run)
 
 
 if __name__ == "__main__":
