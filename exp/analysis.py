@@ -9,11 +9,12 @@ import seaborn as sns
 import pandas as pd
 import numpy as np
 import os
+
 sns.set()
 
 
 def analysis(biadj_mat, biadj_mat_recon):
-    """ Perform analysis of the shd and number of reconstructed latent
+    """Perform analysis of the shd and number of reconstructed latent
     Parameters
     ----------
     biadj_mat: input directed graph
@@ -34,9 +35,13 @@ def analysis(biadj_mat, biadj_mat_recon):
     # learned graphs with permutations taken into consideration
     if num_latent < num_latent_recon:
         biadj_mat_recon_list = [
-            contract_recon(biadj_mat_recon, comb) for comb in combinations(np.arange(num_latent_recon), num_latent)
+            contract_recon(biadj_mat_recon, comb)
+            for comb in combinations(np.arange(num_latent_recon), num_latent)
         ]
-        shd_learned_list = [find_learned(biadj_mat, biadj_mat_recon) for biadj_mat_recon in biadj_mat_recon_list]
+        shd_learned_list = [
+            find_learned(biadj_mat, biadj_mat_recon)
+            for biadj_mat_recon in biadj_mat_recon_list
+        ]
         shd_list = [_[0] for _ in shd_learned_list]
         ushd_list = [_[1] for _ in shd_learned_list]
         idx = np.argmin(shd_list)
@@ -51,7 +56,7 @@ def analysis(biadj_mat, biadj_mat_recon):
 
 
 def find_learned(biadj_mat, biadj_mat_recon):
-    """ Find the learned directed graph that minimizes the SHD
+    """Find the learned directed graph that minimizes the SHD
     Parameters
     ----------
     biadj_mat: original graph
@@ -65,8 +70,10 @@ def find_learned(biadj_mat, biadj_mat_recon):
 
     # find the number of latent variables and shd
     num_latent = biadj_mat.shape[0]
-    shd_perm_list = [(shd_func(biadj_mat, permute_graph(biadj_mat_recon, perm)), perm) for perm
-                     in permutations(np.arange(num_latent))]
+    shd_perm_list = [
+        (shd_func(biadj_mat, permute_graph(biadj_mat_recon, perm)), perm)
+        for perm in permutations(np.arange(num_latent))
+    ]
 
     shd_list, perm_list = [_[0] for _ in shd_perm_list], [_[1] for _ in shd_perm_list]
     idx = np.argmin(shd_list)
@@ -84,7 +91,7 @@ def find_learned(biadj_mat, biadj_mat_recon):
 
 
 def recover_ug(biadj_mat):
-    """ Recover the undirected graph from the directed graph
+    """Recover the undirected graph from the directed graph
     Parameters
     ----------
     biadj_mat: learned directed graph
@@ -96,13 +103,13 @@ def recover_ug(biadj_mat):
 
     # get the undirected graph from the directed graph
     ug = biadj_mat.T @ biadj_mat
-    np.fill_diagonal(ug, 0.)
+    np.fill_diagonal(ug, 0.0)
 
     return ug
 
 
 def build_table(order_n, alpha):
-    """ Build table for SHD, ELBO, and losses
+    """Build table for SHD, ELBO, and losses
     Parameters
     ----------
     order_n: order of the number of samples
@@ -114,11 +121,25 @@ def build_table(order_n, alpha):
     """
 
     exp_path = os.path.join(DATA_PATH, "experiments")
-    columns = ["loss_true_train", "loss_true_valid", "error_true_train", "error_true_valid",
-               "loss_exact_train", "loss_exact_valid", "error_exact_train", "error_exact_valid",
-               "loss_recon_train", "loss_recon_valid", "error_recon_train", "error_recon_valid",
-               "loss_vanilla_train", "loss_vanilla_valid", "error_vanilla_train", "error_vanilla_valid",
-               "shd_recon"] + ["run"]
+    columns = [
+        "loss_true_train",
+        "loss_true_valid",
+        "error_true_train",
+        "error_true_valid",
+        "loss_exact_train",
+        "loss_exact_valid",
+        "error_exact_train",
+        "error_exact_valid",
+        "loss_recon_train",
+        "loss_recon_valid",
+        "error_recon_train",
+        "error_recon_valid",
+        "loss_vanilla_train",
+        "loss_vanilla_valid",
+        "error_vanilla_train",
+        "error_vanilla_valid",
+        "shd_recon",
+    ] + ["run"]
 
     table = pd.DataFrame(columns=columns)
 
@@ -140,7 +161,9 @@ def build_table(order_n, alpha):
 
             # vanilla graph
             loss_vanilla = pd.read_pickle(os.path.join(result_path, "loss_vanilla.pkl"))
-            error_vanilla = pd.read_pickle(os.path.join(result_path, "error_vanilla.pkl"))
+            error_vanilla = pd.read_pickle(
+                os.path.join(result_path, "error_vanilla.pkl")
+            )
             sub_table.loc[path, "loss_vanilla_train"] = loss_vanilla[0][-1]
             sub_table.loc[path, "loss_vanilla_valid"] = loss_vanilla[1][-1]
             sub_table.loc[path, "error_vanilla_train"] = error_vanilla[0][-1]
@@ -157,9 +180,14 @@ def build_table(order_n, alpha):
 
                 # SHD for reconstruction
                 biadj_mat = np.load(os.path.join(result_path, "biadj_mat.npy"))
-                biadj_mat_recon = np.load(os.path.join(result_path, "biadj_mat_recon.npy"))
+                biadj_mat_recon = np.load(
+                    os.path.join(result_path, "biadj_mat_recon.npy")
+                )
                 shd, ushd = analysis(biadj_mat, biadj_mat_recon)
                 sub_table.loc[path, "shd_recon"] = shd
+
+                # comparing SHD(true, exact), SHD(true, heur), SHD(exact, huer)
+                # so maybe "biadj_mat_exact.npy" and "biadj_mat_heur.npy" to distinguish the two
 
             sub_table["run"] = idx
 
