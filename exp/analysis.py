@@ -1,7 +1,7 @@
 from gloabl_settings import DATA_PATH
 from exp.examples import paths_list
-from exp.examples import linspace_graph
-from exp.examples import linspace_real
+from exp.examples import num_samps_graph
+from exp.examples import num_samps_real
 from graph_est.utils import expand_recon, contract_recon
 from graph_est.utils import permute_graph, shd_func
 from itertools import permutations, combinations
@@ -9,7 +9,6 @@ import seaborn as sns
 import pandas as pd
 import numpy as np
 import os
-
 sns.set()
 
 
@@ -108,11 +107,10 @@ def recover_ug(biadj_mat):
     return ug
 
 
-def build_table(order_n, alpha):
+def build_table(alpha):
     """Build table for SHD, ELBO, and losses
     Parameters
     ----------
-    order_n: order of the number of samples
     alpha: alpha for the hypothesis test
 
     Returns
@@ -148,7 +146,7 @@ def build_table(order_n, alpha):
 
         for path in paths_list:
             graph_path = os.path.join(exp_path, f"experiment_{idx}", path)
-            n = linspace_graph[order_n] if "Graph" in path else linspace_real[order_n]
+            n = num_samps_graph if "Graph" in path else num_samps_real
             result_path = os.path.join(graph_path, f"num_samps={n}_alpha={alpha}")
 
             # hrstc graph

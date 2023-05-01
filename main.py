@@ -2,8 +2,8 @@ from exp.experiment import run_fixed
 from exp.experiment import run_random
 from exp.experiment import run_real_full
 from exp.experiment import run_real
-from exp.examples import linspace_graph
-from exp.examples import linspace_real
+from exp.examples import num_samps_graph
+from exp.examples import num_samps_real
 import os
 
 
@@ -16,7 +16,7 @@ def main(dataset_name, parent_path):
     """
 
     # argument for estimation
-    alphas = [0.01, 0.05, 0.1, 0.2, 0.5, 0.9]
+    alpha = 0.05
     heuristic = True
     method = "dcov_fast"
 
@@ -24,17 +24,17 @@ def main(dataset_name, parent_path):
     dof = None
     dof_method = "uniform"
 
-    for run in range(10):
-        # real dataset
-        exp_path = os.path.join(parent_path, f"experiment_{run}")
-        if not os.path.isdir(exp_path):
-            os.mkdir(exp_path)
+    run = 0
+    # real dataset
+    exp_path = os.path.join(parent_path, f"experiment_{run}")
+    if not os.path.isdir(exp_path):
+        os.mkdir(exp_path)
 
-        # fixed and random dataset
-        run_fixed(linspace_graph, heuristic, method, alphas, dof, dof_method, exp_path, seed=run)
-        run_random(linspace_graph, heuristic, method, alphas, dof, dof_method, exp_path, seed=run)
-        run_real(dataset_name, linspace_real, heuristic, method, alphas, dof, dof_method, exp_path, seed=run)
-        run_real_full(dataset_name, linspace_real, heuristic, method, alphas, dof, dof_method, exp_path, seed=run)
+    # fixed and random dataset
+    run_fixed(num_samps_graph, heuristic, method, alpha, dof, dof_method, exp_path, seed=run)
+    run_random(num_samps_graph, heuristic, method, alpha, dof, dof_method, exp_path, seed=run)
+    run_real(dataset_name, num_samps_real, heuristic, method, alpha, dof, dof_method, exp_path, seed=run)
+    run_real_full(dataset_name, num_samps_real, heuristic, method, alpha, dof, dof_method, exp_path, seed=run)
 
 
 if __name__ == "__main__":

@@ -1,5 +1,6 @@
 import numpy as np
 import string
+import random
 from medil.functional_MCM import rand_biadj_mat
 
 # fixed graph
@@ -14,6 +15,7 @@ conversion_dict = {
     7: "h",
     8: "i",
 }
+
 fixed_biadj_mat_list = [
     np.array([[True, True]]),
     np.array([[True, True, True]]),
@@ -57,16 +59,17 @@ fixed_biadj_mat_list = [
 
 
 # random graph
+num_runs = 10
 num_obs_list = [10, 50, 100]
-edge_prob_list = np.arange(0.1, 0.91, 0.1)
-num_runs_per = 10
+edge_prob_list = np.round(np.arange(0.1, 0.91, 0.1), 2)
+rand_biadj_mat_list = {}
 
-rand_biadj_mat_list = []
-
-for n in num_obs_list:
-    for p in edge_prob_list:
-        for run in range(num_runs_per):
-            rand_biadj_mat_list.append(rand_biadj_mat(num_obs=n, edge_prob=p))
+for idx in range(num_runs):
+    for n in num_obs_list:
+        for p in edge_prob_list:
+            print(f"Generating sample with idx={idx}, num_obs={n}, and edge_prob={p}")
+            random.seed(idx)
+            rand_biadj_mat_list[f"{idx}_{n}_{p}"] = rand_biadj_mat(num_obs=n, edge_prob=p)
 
 
 # tcga dataset
@@ -109,7 +112,5 @@ paths_list = fixed_paths_list + rand_paths_list
 
 
 # linspace for the simulated graphs and the real dataset
-linspace_graph = np.exp(np.linspace(np.log(100), np.log(2500), 10))
-linspace_graph = np.array(sorted(set(np.round(linspace_graph)))).astype(int)
-linspace_real = np.exp(np.linspace(np.log(100), np.log(632), 10))
-linspace_real = np.array(sorted(set(np.round(linspace_real)))).astype(int)
+num_samps_graph = 1000
+num_samps_real = 632

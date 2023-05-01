@@ -1,23 +1,23 @@
-from datetime import datetime
-from exp.pipeline import pipeline_graph
-from exp.pipeline import pipeline
 from exp.examples import fixed_biadj_mat_list, conversion_dict
 from exp.examples import rand_biadj_mat_list, tcga_key_list
 from exp.examples import tcga_subsize, mnist_subsize, gene_subsize
 from sklearn.preprocessing import StandardScaler
 from gloabl_settings import DATA_PATH
+from exp.pipeline import pipeline_graph
+from exp.pipeline import pipeline
+from datetime import datetime
 import pandas as pd
 import os
 
 
-def run_fixed(linspace, heuristic, method, alphas, dof, dof_method, exp_path, seed):
+def run_fixed(num_samps_graph, heuristic, method, alpha, dof, dof_method, exp_path, seed):
     """ Run MeDIL on the fixed graphs
     Parameters
     ----------
-    linspace: linspace for the number of samples
+    num_samps_graph: number of samples for graph
     heuristic: whether to use heuristic or not
     method: method for udg estimation
-    alphas: list of alphas
+    alpha: alpha value
     dof: desired size of latent space of VAE
     dof_method: how to distribute excess degrees of freedom to latent causal factors
     exp_path: path for the experiment
@@ -29,59 +29,56 @@ def run_fixed(linspace, heuristic, method, alphas, dof, dof_method, exp_path, se
         graph_path = os.path.join(exp_path, f"Graph_{graph_idx}")
         if not os.path.isdir(graph_path):
             os.mkdir(graph_path)
-        for num_samps in linspace:
-            for alpha in alphas:
-                print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Working on graph {graph_idx} with "
-                      f"num_samps={num_samps} and alpha={alpha}")
-                folder_name = f"num_samps={num_samps}_alpha={alpha}"
-                folder_path = os.path.join(graph_path, folder_name)
-                if not os.path.isdir(folder_path):
-                    os.mkdir(folder_path)
-                    pipeline_graph(
-                        biadj_mat, num_samps, heuristic, method, alpha, dof, dof_method, folder_path, seed=seed
-                    )
+        print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Working on graph {graph_idx} with "
+              f"num_samps={num_samps_graph}")
+
+        if not os.path.isdir(graph_path):
+            os.mkdir(graph_path)
+            pipeline_graph(
+                biadj_mat, num_samps_graph, heuristic, method, alpha, dof, dof_method, graph_path, seed=seed
+            )
 
 
-def run_random(linspace, heuristic, method, alphas, dof, dof_method, exp_path, seed):
+def run_random(num_samps_graph, heuristic, method, alpha, dof, dof_method, exp_path, seed):
     """ Run MeDIL on the random graphs
     Parameters
     ----------
-    linspace: linspace for the number of samples
+    num_samps_graph: number of samples for graph
     heuristic: whether to use heuristic or not
     method: method for udg estimation
-    alphas: list of alphas
+    alpha: alpha value
     dof: desired size of latent space of VAE
     dof_method: how to distribute excess degrees of freedom to latent causal factors
     exp_path: path for the experiment
     seed: random seed for the experiments
     """
 
-    for idx, biadj_mat in enumerate(rand_biadj_mat_list):
+    for key, biadj_mat in rand_biadj_mat_list.items():
+        idx, n, p = key.split("_")
         graph_path = os.path.join(exp_path, f"Graph_{idx}")
         if not os.path.isdir(graph_path):
             os.mkdir(graph_path)
-        for num_samps in linspace:
-            for alpha in alphas:
-                print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Working on graph {idx} with "
-                      f"num_samps={num_samps} and alpha={alpha}")
-                folder_name = f"num_samps={num_samps}_alpha={alpha}"
-                folder_path = os.path.join(graph_path, folder_name)
-                if not os.path.isdir(folder_path):
-                    os.mkdir(folder_path)
-                    pipeline_graph(
-                        biadj_mat, num_samps, heuristic, method, alpha, dof, dof_method, folder_path, seed=seed
-                    )
+        print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Working on graph {idx} with "
+              f"num_samps={num_samps_graph}, n={n}, p={p}")
+
+        folder_name = f"n={n}_p={p}"
+        folder_path = os.path.join(graph_path, folder_name)
+        if not os.path.isdir(folder_path):
+            os.mkdir(folder_path)
+            pipeline_graph(
+                biadj_mat, num_samps_graph, heuristic, method, alpha, dof, dof_method, folder_path, seed=seed
+            )
 
 
-def run_real(dataset_name, linspace, heuristic, method, alphas, dof, dof_method, exp_path, seed):
+def run_real(dataset_name, num_samps_real, heuristic, method, alpha, dof, dof_method, exp_path, seed):
     """ Run MeDIL on real dataset
     Parameters
     ----------
     dataset_name: name of dataset
-    linspace: linspace for the number of samples
+    num_samps_real: number of samples for real dataset
     heuristic: whether to use heuristic or not
     method: method for udg estimation
-    alphas: list of alphas
+    alpha: alpha value
     dof: desired size of latent space of VAE
     dof_method: how to distribute excess degrees of freedom to latent causal factors
     exp_path: path for the experiment
@@ -108,26 +105,23 @@ def run_real(dataset_name, linspace, heuristic, method, alphas, dof, dof_method,
 
         if not os.path.isdir(graph_path):
             os.mkdir(graph_path)
-        for num_samps in linspace:
-            for alpha in alphas:
-                print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Working on real data {idx} with "
-                      f"num_samps={num_samps} and alpha={alpha}")
-                folder_name = f"num_samps={num_samps}_alpha={alpha}"
-                folder_path = os.path.join(graph_path, folder_name)
-                if not os.path.isdir(folder_path):
-                    os.mkdir(folder_path)
-                    pipeline(dataset, heuristic, method, alpha, dof, dof_method, folder_path, seed=seed)
+        print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Working on real data {idx} with "
+              f"num_samps={num_samps_real}")
+
+        if not os.path.isdir(graph_path):
+            os.mkdir(graph_path)
+            pipeline(dataset, heuristic, method, alpha, dof, dof_method, graph_path, seed=seed)
 
 
-def run_real_full(dataset_name, linspace, heuristic, method, alphas, dof, dof_method, exp_path, seed):
+def run_real_full(dataset_name, num_samps_real, heuristic, method, alpha, dof, dof_method, exp_path, seed):
     """ Run MeDIL on real dataset
     Parameters
     ----------
     dataset_name: name of dataset
-    linspace: linspace for the number of samples
+    num_samps_real: number of samples for real dataset
     heuristic: whether to use heuristic or not
     method: method for udg estimation
-    alphas: list of alphas
+    alpha: alpha value
     dof: desired size of latent space of VAE
     dof_method: how to distribute excess degrees of freedom to latent causal factors
     exp_path: path for the experiment
@@ -157,12 +151,9 @@ def run_real_full(dataset_name, linspace, heuristic, method, alphas, dof, dof_me
 
     if not os.path.isdir(graph_path):
         os.mkdir(graph_path)
-    for num_samps in linspace:
-        for alpha in alphas:
-            print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Working on real data full with "
-                  f"num_samps={num_samps} and alpha={alpha}")
-            folder_name = f"num_samps={num_samps}_alpha={alpha}"
-            folder_path = os.path.join(graph_path, folder_name)
-            if not os.path.isdir(folder_path):
-                os.mkdir(folder_path)
-                pipeline(dataset, heuristic, method, alpha, dof, dof_method, folder_path, seed=seed)
+    print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Working on real data full with "
+          f"num_samps={num_samps_real}")
+
+    if not os.path.isdir(graph_path):
+        os.mkdir(graph_path)
+        pipeline(dataset, heuristic, method, alpha, dof, dof_method, graph_path, seed=seed)
