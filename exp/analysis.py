@@ -133,8 +133,8 @@ def build_table(n, p):
         "loss_vanilla_valid",
         "error_vanilla_train",
         "error_vanilla_valid",
-        "shd_recon",
-    ] + ["run"]
+        "shd_recon"
+    ] + ["flag_train", "flag_valid"] + ["dof", "run"]
 
     table = pd.DataFrame(columns=columns)
 
@@ -176,11 +176,16 @@ def build_table(n, p):
 
                 # SHD for reconstruction
                 biadj_mat = np.load(os.path.join(result_path, "biadj_mat.npy"))
-                biadj_mat_recon = np.load(
-                    os.path.join(result_path, "biadj_mat_recon.npy")
-                )
+                biadj_mat_recon = np.load(os.path.join(result_path, "biadj_mat_recon.npy"))
                 shd, ushd = analysis(biadj_mat, biadj_mat_recon)
                 sub_table.loc[path, "shd_recon"] = shd
+
+            # performance information
+            train_flag = table["loss_recon_train"] < table["loss_vanilla_train"]
+            valid_flag = table["loss_recon_valid"] < table["loss_vanilla_valid"]
+            boolean_dictionary = {True: "recon", False: "vanilla"}
+            table["train_flag"] = train_flag.map(boolean_dictionary)
+            table["valid_flag"] = valid_flag.map(boolean_dictionary)
 
             # other information
             info = pd.read_pickle(os.path.join(result_path, "info.pkl"))
