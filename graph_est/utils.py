@@ -3,7 +3,7 @@ import cdt
 
 
 def permute_graph(biadj_mat_recon, perm):
-    """ Find permutation of the graph
+    """Find permutation of the graph
     Parameters
     ----------
     biadj_mat_recon: learned directed adjacency matrix
@@ -20,7 +20,7 @@ def permute_graph(biadj_mat_recon, perm):
 
 
 def expand_recon(biadj_mat_recon, num_obs, num_latent):
-    """ Expand the reconstructed directed graph
+    """Expand the reconstructed directed graph
     Parameters
     ----------
     biadj_mat_recon: learned directed adjacency matrix
@@ -40,7 +40,7 @@ def expand_recon(biadj_mat_recon, num_obs, num_latent):
 
 
 def contract_recon(biadj_mat_recon, comb):
-    """ Contract the reconstructed directed graph
+    """Contract the reconstructed directed graph
     Parameters
     ----------
     biadj_mat_recon: learned directed adjacency matrix
@@ -57,7 +57,7 @@ def contract_recon(biadj_mat_recon, comb):
 
 
 def shd_func(g1, g2):
-    """ Estimating structural hamming distance given two graphs with the same shape
+    """Estimating structural hamming distance given two graphs with the same shape
     Parameters
     ----------
     g1: graph 1 for evaluating the SHD
@@ -77,7 +77,7 @@ def shd_func(g1, g2):
 
 
 def generate_linspace(lin_min, lin_max, size):
-    """ Generate linspace given the minimal and maximal value inputs
+    """Generate linspace given the minimal and maximal value inputs
     Parameters
     ----------
     lin_min: minimum value

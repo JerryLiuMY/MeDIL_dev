@@ -9,11 +9,12 @@ import seaborn as sns
 import pandas as pd
 import numpy as np
 import os
+
 sns.set()
 
 
 def analysis(biadj_mat, biadj_mat_recon):
-    """Perform analysis of the shd and number of reconstructed latent
+    """Perform analysis of the distances between true and reconstructed structures
     Parameters
     ----------
     biadj_mat: input directed graph
@@ -21,72 +22,25 @@ def analysis(biadj_mat, biadj_mat_recon):
 
     Returns
     -------
-    shd: structural hamming distance (directed graph)
+    sfd: squared Frobenius distance (bipartite graph)
     ushd: structural hamming distance (undirected graph)
     """
 
-    # change the matrix to int
-    num_latent, num_obs = biadj_mat.shape
-    num_latent_recon = biadj_mat_recon.shape[0]
+    # ushd = shd_func(recover_ug(biadj_mat), recover_ug(biadj_mat_recon))
+    ug = recover_ug(biadj_mat)
+    ug_recon = recover_ug(biadj_mat_recon)
+
+    ushd = np.triu(np.logical_xor(ug, ug_recon), 1).sum()
+
     biadj_mat = biadj_mat.astype(int)
     biadj_mat_recon = biadj_mat_recon.astype(int)
 
-    # learned graphs with permutations taken into consideration
-    if num_latent < num_latent_recon:
-        biadj_mat_recon_list = [
-            contract_recon(biadj_mat_recon, comb)
-            for comb in combinations(np.arange(num_latent_recon), num_latent)
-        ]
-        shd_learned_list = [
-            find_learned(biadj_mat, biadj_mat_recon)
-            for biadj_mat_recon in biadj_mat_recon_list
-        ]
-        shd_list = [_[0] for _ in shd_learned_list]
-        ushd_list = [_[1] for _ in shd_learned_list]
-        idx = np.argmin(shd_list)
-        shd, ushd = shd_list[idx], ushd_list[idx]
-    elif num_latent > num_latent_recon:
-        biadj_mat_recon = expand_recon(biadj_mat_recon, num_obs, num_latent)
-        shd, ushd = find_learned(biadj_mat, biadj_mat_recon)
-    else:
-        shd, ushd = find_learned(biadj_mat, biadj_mat_recon)
+    wtd_ug = biadj_mat.T @ biadj_mat
+    wtd_ug_recon = biadj_mat_recon.T @ biadj_mat_recon
 
-    return shd, ushd
+    sfd = ((wtd_ug - wtd_ug_recon) ** 2).sum()
 
-
-def find_learned(biadj_mat, biadj_mat_recon):
-    """Find the learned directed graph that minimizes the SHD
-    Parameters
-    ----------
-    biadj_mat: original graph
-    biadj_mat_recon: reconstructed graph
-
-    Returns
-    -------
-    shd: minimal structural hamming distance for all permutations (directed graph)
-    ushd: minimal structural hamming distance for all permutations (undirected graph)
-    """
-
-    # find the number of latent variables and shd
-    num_latent = biadj_mat.shape[0]
-    shd_perm_list = [
-        (shd_func(biadj_mat, permute_graph(biadj_mat_recon, perm)), perm)
-        for perm in permutations(np.arange(num_latent))
-    ]
-
-    shd_list, perm_list = [_[0] for _ in shd_perm_list], [_[1] for _ in shd_perm_list]
-    idx = np.argmin(shd_list)
-    shd = shd_list[idx]
-
-    # find the directed graph recovered
-    biadj_mat_learned = biadj_mat_recon[perm_list[idx], :]
-
-    # find the undirected graph recovered
-    ug_mat = recover_ug(biadj_mat)
-    ug_mat_recon = recover_ug(biadj_mat_learned)
-    ushd = shd_func(ug_mat, ug_mat_recon)
-
-    return shd, ushd
+    return sfd, ushd
 
 
 def recover_ug(biadj_mat):
@@ -102,7 +56,7 @@ def recover_ug(biadj_mat):
 
     # get the undirected graph from the directed graph
     ug = biadj_mat.T @ biadj_mat
-    np.fill_diagonal(ug, 0.0)
+    np.fill_diagonal(ug, False)
 
     return ug
 
@@ -159,7 +113,9 @@ def build_table(n, p):
 
             # vanilla graph
             loss_vanilla = pd.read_pickle(os.path.join(result_path, "loss_vanilla.pkl"))
-            error_vanilla = pd.read_pickle(os.path.join(result_path, "error_vanilla.pkl"))
+            error_vanilla = pd.read_pickle(
+                os.path.join(result_path, "error_vanilla.pkl")
+            )
             sub_table.loc[path, "loss_vanilla_train"] = loss_vanilla[0][-1]
             sub_table.loc[path, "loss_vanilla_valid"] = loss_vanilla[1][-1]
             sub_table.loc[path, "error_vanilla_train"] = error_vanilla[0][-1]
@@ -192,7 +148,7 @@ def build_table(n, p):
             biadj_mat = np.load(os.path.join(result_path, "biadj_mat.npy"))
             _, num_obs = biadj_mat.shape
             if info["dof"] is None:
-                dof = num_obs ** 2 // 4
+                dof = num_obs**2 // 4
             else:
                 dof = info["dof"]
             sub_table["dof"] = dof
