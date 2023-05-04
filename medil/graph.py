@@ -1,5 +1,6 @@
 """Various types and representations of graphs."""
 import numpy as np
+from numpy.random import default_rng
 
 
 class UndirectedDependenceGraph(object):
@@ -393,10 +394,6 @@ class ReducibleUndDepGraph(UndirectedDependenceGraph):
             the_cover[cliques_to_update_mask, vert] = 1
 
         return the_cover
-
-
-# class minMCM(object):
-# TODO: implement as a bigraph with biadjacency matrix with rows M and cols L
 
 
 # class MCM(object):
