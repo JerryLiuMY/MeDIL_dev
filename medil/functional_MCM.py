@@ -1,8 +1,13 @@
 """Randomly sample from and generate functional MeDIL Causal Models."""
-from .ecc_algorithms import find_heuristic_clique_cover as find_cm
+import warnings
+
 from numpy.random import default_rng
 import numpy as np
-import warnings
+from scipy.special import comb
+from gues.grues import InputData as rand_walker
+
+from .ecc_algorithms import find_heuristic_clique_cover as find_h
+from .ecc_algorithms import find_clique_min_cover as find_cm
 
 
 def rand_biadj_mat(num_obs, edge_prob, rng=default_rng(0)):
@@ -28,7 +33,7 @@ def rand_biadj_mat(num_obs, edge_prob, rng=default_rng(0)):
     np.fill_diagonal(udg, True)
 
     # find latent connections (minimum edge clique cover)
-    biadj_mat = find_cm(udg)
+    biadj_mat = find_h(udg)
     biadj_mat = biadj_mat.astype(bool)
 
     return biadj_mat
@@ -120,3 +125,121 @@ def assign_DoF(biadj_mat, deg_of_freedom=None, method="uniform", variances=None)
     redundant_biadj_mat = np.repeat(biadj_mat, latents_per_clique, axis=0)
 
     return redundant_biadj_mat
+
+
+class MedilCausalModel(object):
+    def __init__(self, biadj_mat=None, latent_dag=None, rng=default_rng(0)):
+        self.biadj_mat = biadj_mat
+        self.latent_dag = latent_dag
+        if biadj_mat is not None:
+            self.num_latent, self.num_obs = biadj_mat.shape()
+        self.rng = rng
+        if biadj_mat is None:
+            self.udg = None
+        else:
+            if latent_dag is None:
+                self.udg = biadj_mat.T @ biadj_mat
+                np.fill_diagonal(self.udg, False)
+            else:
+                # take trans closure?
+                pass
+
+    def fit(self, dataset, method="lin_gaus"):
+        if self.biadj_mat is None:
+            # indep test to get U
+            # use ECC alg to get biadj_mat
+            pass
+        pass
+
+    def sample(self, sample_size):
+        if hasattr(self, "vae"):
+            # samp = sample drawn from vae model
+            pass
+        else:
+            if not hasattr(self, "cov"):
+                # generate random weights in +-[0.5, 2]
+                num_edges = self.biadj_mat.sum()
+                idcs = np.argwhere(biadj_mat)
+                idcs[:, 1] += self.num_latent
+
+                weights = (self.rng.random(num_edges) * 1.5) + 0.5
+                weights[self.rng.choice((True, False), num_edges)] *= -1
+
+                precision = np.eye(self.num_latent + self.num_obs, dtype=float)
+                precision[idcs[:, 0], idcs[:, 1]] = weights
+                precision = precision.dot(precision.T)
+
+                cov = np.linalg.inv(precision)
+                self.cov = cov
+
+            samp = sef.rng.multivariate_normal(
+                np.zeros(len(self.cov)), self.cov, sample_size
+            )
+        return samp
+
+    def rand(self, num_obs, num_latent=None, edge_prob=None):
+        self.num_obs = num_obs
+
+        if num_latent is not None and edge_prob is not None:
+            raise ValueError(
+                "You may specify `num_latent` or `edge_prob` but not both."
+            )
+        elif num_latent is not None:
+            self.num_latent = num_latent
+            self.rand_grues()
+        else:
+            if edge_prob is None:
+                edge_prob = 0.5
+            self.rand_er(edge_prob)
+
+        return self
+
+    def rand_er(self, edge_prob):
+        """Generate minMCM from Erdős–Rényi random undirected graph
+        over observed variables."""
+        # ER random graph
+        udg = np.zeros((self.num_obs, self.num_obs), bool)
+        max_edges = (self.num_obs * (self.num_obs - 1)) // 2
+        num_edges = np.round(edge_prob * max_edges).astype(int)
+        edges = np.ones(max_edges)
+        edges[num_edges:] = 0
+        udg[np.triu_indices(self.num_obs, k=1)] = self.rng.permutation(edges)
+        udg += udg.T
+        np.fill_diagonal(udg, True)
+        self.udg = udg
+
+        # find latent connections (minimum edge clique cover)
+        biadj_mat = find_cm(udg)
+        self.biadj_mat = biadj_mat.astype(bool)
+        self.num_latent = len(biadj_mat)
+
+    def rand_grues(self):
+        """Generate minMCM with specified num_latent by using randomly
+        applied Groebner basis moves."""
+
+        # initialize at graph with specified number of latents (so U
+        # has L-1 disconnected verts and then a clique of size M-L-1)
+        init = np.zeros((self.num_obs, self.num_obs), bool)
+        init[self.num_latent - 1 :, :][:, self.num_latent - 1 :] = True
+        np.fill_diagonal(init, False)
+        reorder = self.rng.permutation(self.num_obs)
+        init = init[:, reorder][reorder, :]
+
+        # take random walk from init graph
+        dummy_samp = self.rng.random((50, self.num_obs))
+        rw = rand_walker(dummy_samp, self.rng)
+        rw.explore = True
+        move_prob = {
+            "merge": 0,
+            "split": 0,
+            "within": 2 / 3,
+            "out_del": 1 / 3,
+            "out_add": 1 / 3,
+        }
+        num_moves = int(min(comb(self.num_obs, self.num_latent), 10000))
+        rw.mcmc(init, move_prob, num_moves)
+
+        self.udg = self.rng.choice(rw.markov_chain)
+        np.fill_diagonal(self.udg, True)
+        self.biadj_mat = find_cm(self.udg)
+        np.fill_diagonal(self.udg, False)

@@ -1,6 +1,13 @@
-import numpy as np
-from medil.functional_MCM import rand_biadj_mat, sample_from_minMCM, assign_DoF
 import warnings
+
+import numpy as np
+
+from medil.functional_MCM import (
+    rand_biadj_mat,
+    sample_from_minMCM,
+    assign_DoF,
+    MedilCausalModel,
+)
 from medil.examples import examples
 
 
@@ -72,3 +79,7 @@ def test_assign_DoF():
             test_rounding = assign_DoF(biadj_mat, dof, method, variances)
             assert (np.unique(test_rounding, axis=0) == biadj_mat).all()
             assert dof == len(test_rounding)
+
+
+def test_rand():
+    mcm = MedilCausalModel().rand(5, 4).biadj_mat
