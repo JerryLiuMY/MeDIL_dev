@@ -1,7 +1,9 @@
 """Implementations of edge clique clover finding algorithms."""
-from .graph import UndirectedDependenceGraph
-import numpy as np
 import subprocess, os, shutil
+
+import numpy as np
+
+from .graph import UndirectedDependenceGraph
 
 
 def find_clique_min_cover(graph, verbose=False):
@@ -59,7 +61,7 @@ def find_clique_min_cover(graph, verbose=False):
         the_cover = branch(graph, num_cliques, the_cover, iteration=0, iteration_max=3)
         num_cliques += 1
 
-    return the_cover
+    return add_isolated_verts(the_cover)
 
 
 def branch(graph, k_num_cliques, the_cover, iteration, iteration_max):
@@ -244,4 +246,14 @@ def find_heuristic_clique_cover(graph):
     the_cover = np.zeros((len(the_cover_idcs), graph.max_num_verts)).astype(bool)
     the_cover[latent_idcs, observed_idcs] = True
 
-    return the_cover
+    return add_isolated_verts(the_cover)
+
+
+def add_isolated_verts(cover):
+    cover = cover.astype(bool)
+    iso_vert_idx = np.flatnonzero(cover.sum(0) == 0)
+    num_rows = len(iso_vert_idx)
+    num_cols = cover.shape[1]
+    iso_vert_cover = np.zeros((num_rows, num_cols), bool)
+    iso_vert_cover[np.arange(num_rows), iso_vert_idx] = True
+    return np.vstack((cover, iso_vert_cover))

@@ -82,4 +82,5 @@ def test_assign_DoF():
 
 
 def test_rand():
-    mcm = MedilCausalModel().rand(5, 4).biadj_mat
+    mcm = MedilCausalModel().rand(20, 5).biadj_mat
+    print(mcm.shape)

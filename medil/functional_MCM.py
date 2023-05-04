@@ -226,7 +226,7 @@ class MedilCausalModel(object):
         init = init[:, reorder][reorder, :]
 
         # take random walk from init graph
-        dummy_samp = self.rng.random((50, self.num_obs))
+        dummy_samp = self.rng.random(init.shape)
         rw = rand_walker(dummy_samp, self.rng)
         rw.explore = True
         move_prob = {
@@ -236,10 +236,10 @@ class MedilCausalModel(object):
             "out_del": 1 / 3,
             "out_add": 1 / 3,
         }
-        num_moves = int(min(comb(self.num_obs, self.num_latent), 10000))
+        num_moves = int(min(comb(self.num_obs, self.num_latent), 1000))
         rw.mcmc(init, move_prob, num_moves)
 
         self.udg = self.rng.choice(rw.markov_chain)
         np.fill_diagonal(self.udg, True)
-        self.biadj_mat = find_cm(self.udg)
+        self.biadj_mat = find_h(self.udg)
         np.fill_diagonal(self.udg, False)
