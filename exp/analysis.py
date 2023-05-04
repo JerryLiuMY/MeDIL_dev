@@ -26,17 +26,19 @@ def analysis(biadj_mat, biadj_mat_recon):
     ushd: structural hamming distance (undirected graph)
     """
 
-    num_latent, num_obs = biadj_mat.shape
-    num_latent_recon = biadj_mat_recon.shape[0]
+    # ushd = shd_func(recover_ug(biadj_mat), recover_ug(biadj_mat_recon))
+    ug = recover_ug(biadj_mat)
+    ug_recon = recover_ug(biadj_mat_recon)
 
-    ushd = shd_func(recover_ug(biadj_mat), recover_ug(biadj_mat_recon))
+    ushd = np.triu(np.logical_xor(ug, ug_recon), 1).sum()
 
     biadj_mat = biadj_mat.astype(int)
     biadj_mat_recon = biadj_mat_recon.astype(int)
 
     wtd_ug = biadj_mat.T @ biadj_mat
     wtd_ug_recon = biadj_mat_recon.T @ biadj_mat_recon
-    sfd = ((wtd_ug - wtd_ug) ** 2).sum()
+
+    sfd = ((wtd_ug - wtd_ug_recon) ** 2).sum()
 
     return sfd, ushd
 
