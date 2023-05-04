@@ -27,16 +27,15 @@ def run_fixed(num_samps_graph, heuristic, method, alpha, dof, dof_method, exp_pa
     for idx, biadj_mat in enumerate(fixed_biadj_mat_list):
         graph_idx = conversion_dict[idx]
         graph_path = os.path.join(exp_path, f"Graph_{graph_idx}")
-        if not os.path.isdir(graph_path):
-            os.mkdir(graph_path)
-        print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Working on graph {graph_idx} with "
-              f"num_samps={num_samps_graph}")
 
         if not os.path.isdir(graph_path):
             os.mkdir(graph_path)
-            pipeline_graph(
-                biadj_mat, num_samps_graph, heuristic, method, alpha, dof, dof_method, graph_path, seed=seed
-            )
+
+        print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Working on graph {graph_idx} with "
+              f"num_samps={num_samps_graph}")
+        pipeline_graph(
+            biadj_mat, num_samps_graph, heuristic, method, alpha, dof, dof_method, graph_path, seed=seed
+        )
 
 
 def run_random(num_samps_graph, heuristic, method, alpha, dof, dof_method, exp_path, seed):
@@ -58,9 +57,9 @@ def run_random(num_samps_graph, heuristic, method, alpha, dof, dof_method, exp_p
         graph_path = os.path.join(exp_path, f"Graph_{idx}")
         if not os.path.isdir(graph_path):
             os.mkdir(graph_path)
+
         print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Working on graph {idx} with "
               f"num_samps={num_samps_graph}, n={n}, p={p}")
-
         folder_name = f"n={n}_p={p}"
         folder_path = os.path.join(graph_path, folder_name)
         if not os.path.isdir(folder_path):
@@ -105,12 +104,10 @@ def run_real(dataset_name, num_samps_real, heuristic, method, alpha, dof, dof_me
 
         if not os.path.isdir(graph_path):
             os.mkdir(graph_path)
+
         print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Working on real data {idx} with "
               f"num_samps={num_samps_real}")
-
-        if not os.path.isdir(graph_path):
-            os.mkdir(graph_path)
-            pipeline(dataset, heuristic, method, alpha, dof, dof_method, graph_path, seed=seed)
+        pipeline(dataset, heuristic, method, alpha, dof, dof_method, graph_path, seed=seed)
 
 
 def run_real_full(dataset_name, num_samps_real, heuristic, method, alpha, dof, dof_method, exp_path, seed):
@@ -151,9 +148,7 @@ def run_real_full(dataset_name, num_samps_real, heuristic, method, alpha, dof, d
 
     if not os.path.isdir(graph_path):
         os.mkdir(graph_path)
+
     print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Working on real data full with "
           f"num_samps={num_samps_real}")
-
-    if not os.path.isdir(graph_path):
-        os.mkdir(graph_path)
-        pipeline(dataset, heuristic, method, alpha, dof, dof_method, graph_path, seed=seed)
+    pipeline(dataset, heuristic, method, alpha, dof, dof_method, graph_path, seed=seed)

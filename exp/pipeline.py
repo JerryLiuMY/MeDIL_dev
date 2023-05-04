@@ -40,10 +40,9 @@ def pipeline_graph(biadj_mat, num_samps, heuristic, method, alpha, dof, dof_meth
     print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Learning the MeDIL model")
     num_latent = biadj_mat.shape[0]
     biadj_mat_recon = estimation(samples[:, num_latent:], heuristic=heuristic, method=method, alpha=alpha)
-    biadj_mat_redundant = assign_DoF(biadj_mat_recon, deg_of_freedom=dof, method=dof_method)
+
     np.save(os.path.join(path, "biadj_mat.npy"), biadj_mat)
     np.save(os.path.join(path, "biadj_mat_recon.npy"), biadj_mat_recon)
-    np.save(os.path.join(path, "biadj_mat_redundant.npy"), biadj_mat_redundant)
 
     ud_graph = recover_ug(biadj_mat)
     ud_graph_recon = recover_ug(biadj_mat_recon)
@@ -65,7 +64,16 @@ def pipeline_graph(biadj_mat, num_samps, heuristic, method, alpha, dof, dof_meth
 
     # perform vae training
     run_vae_oracle(biadj_mat, train_loader, valid_loader, cov_train, cov_valid, path, seed)
-    run_vae_suite(biadj_mat_redundant, train_loader, valid_loader, cov_train, cov_valid, path, seed)
+
+    redundant_path = os.path.join(path, "redundant")
+    biadj_mat_redundant = assign_DoF(biadj_mat_recon, deg_of_freedom=dof, method=dof_method)
+    np.save(os.path.join(redundant_path, "biadj_mat_redundant.npy"), biadj_mat_redundant)
+    run_vae_suite(biadj_mat_redundant, train_loader, valid_loader, cov_train, cov_valid, redundant_path, seed)
+
+    random_path = os.path.join(path, "random")
+    biadj_mat_random = np.random.choice(a=[False, True], size=biadj_mat_redundant.shape, p=[0.5, 0.5])
+    np.save(os.path.join(random_path, "biadj_mat_random.npy"), biadj_mat_random)
+    run_vae_suite(biadj_mat_random, train_loader, valid_loader, cov_train, cov_valid, random_path, seed)
 
 
 def pipeline(dataset, heuristic, method, alpha, dof, dof_method, path, seed):

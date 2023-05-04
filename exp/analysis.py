@@ -107,11 +107,12 @@ def recover_ug(biadj_mat):
     return ug
 
 
-def build_table(alpha):
+def build_table(n, p):
     """Build table for SHD, ELBO, and losses
     Parameters
     ----------
-    alpha: alpha for the hypothesis test
+    n: number of observed variables
+    p: edge probability
 
     Returns
     -------
@@ -124,10 +125,6 @@ def build_table(alpha):
         "loss_true_valid",
         "error_true_train",
         "error_true_valid",
-        "loss_exact_train",
-        "loss_exact_valid",
-        "error_exact_train",
-        "error_exact_valid",
         "loss_recon_train",
         "loss_recon_valid",
         "error_recon_train",
@@ -146,8 +143,11 @@ def build_table(alpha):
 
         for path in paths_list:
             graph_path = os.path.join(exp_path, f"experiment_{idx}", path)
-            n = num_samps_graph if "Graph" in path else num_samps_real
-            result_path = os.path.join(graph_path, f"num_samps={n}_alpha={alpha}")
+            num = path.split("_")[1]
+            if num in ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]:
+                result_path = os.path.join(graph_path, f"n={n}_p={p}")
+            else:
+                result_path = os.path.join(graph_path)
 
             # hrstc graph
             loss_recon = pd.read_pickle(os.path.join(result_path, "loss_recon.pkl"))
@@ -159,9 +159,7 @@ def build_table(alpha):
 
             # vanilla graph
             loss_vanilla = pd.read_pickle(os.path.join(result_path, "loss_vanilla.pkl"))
-            error_vanilla = pd.read_pickle(
-                os.path.join(result_path, "error_vanilla.pkl")
-            )
+            error_vanilla = pd.read_pickle(os.path.join(result_path, "error_vanilla.pkl"))
             sub_table.loc[path, "loss_vanilla_train"] = loss_vanilla[0][-1]
             sub_table.loc[path, "loss_vanilla_valid"] = loss_vanilla[1][-1]
             sub_table.loc[path, "error_vanilla_train"] = error_vanilla[0][-1]
@@ -184,9 +182,15 @@ def build_table(alpha):
                 shd, ushd = analysis(biadj_mat, biadj_mat_recon)
                 sub_table.loc[path, "shd_recon"] = shd
 
-                # comparing SHD(true, exact), SHD(true, heur), SHD(exact, huer)
-                # so maybe "biadj_mat_exact.npy" and "biadj_mat_heur.npy" to distinguish the two
-
+            # other information
+            info = pd.read_pickle(os.path.join(result_path, "info.pkl"))
+            biadj_mat = np.load(os.path.join(result_path, "biadj_mat.npy"))
+            _, num_obs = biadj_mat.shape
+            if info["dof"] is None:
+                dof = num_obs ** 2 // 4
+            else:
+                dof = info["dof"]
+            sub_table["dof"] = dof
             sub_table["run"] = idx
 
         table = pd.concat([table, sub_table])

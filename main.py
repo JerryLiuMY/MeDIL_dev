@@ -33,8 +33,8 @@ def main(dataset_name, parent_path):
     # fixed and random dataset
     run_fixed(num_samps_graph, heuristic, method, alpha, dof, dof_method, exp_path, seed=run)
     run_random(num_samps_graph, heuristic, method, alpha, dof, dof_method, exp_path, seed=run)
-    run_real(dataset_name, num_samps_real, heuristic, method, alpha, dof, dof_method, exp_path, seed=run)
-    run_real_full(dataset_name, num_samps_real, heuristic, method, alpha, dof, dof_method, exp_path, seed=run)
+    # run_real(dataset_name, num_samps_real, heuristic, method, alpha, dof, dof_method, exp_path, seed=run)
+    # run_real_full(dataset_name, num_samps_real, heuristic, method, alpha, dof, dof_method, exp_path, seed=run)
 
 
 if __name__ == "__main__":
