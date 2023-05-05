@@ -159,7 +159,7 @@ class MedilCausalModel(object):
             if not hasattr(self, "cov"):
                 # generate random weights in +-[0.5, 2]
                 num_edges = self.biadj_mat.sum()
-                idcs = np.argwhere(biadj_mat)
+                idcs = np.argwhere(self.biadj_mat)
                 idcs[:, 1] += self.num_latent
 
                 weights = (self.rng.random(num_edges) * 1.5) + 0.5
