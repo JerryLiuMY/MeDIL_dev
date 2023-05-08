@@ -1,10 +1,6 @@
 from gloabl_settings import DATA_PATH
 from exp.examples import paths_list
-from exp.examples import num_samps_graph
-from exp.examples import num_samps_real
-from graph_est.utils import expand_recon, contract_recon
-from graph_est.utils import permute_graph, shd_func
-from itertools import permutations, combinations
+import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
 import numpy as np
@@ -88,11 +84,11 @@ def build_table(n, p):
         "error_vanilla_train",
         "error_vanilla_valid",
         "shd_recon"
-    ] + ["flag_train", "flag_valid"] + ["dof", "run"]
+    ] + ["train_flag", "valid_flag"] + ["dof", "run"]
 
     table = pd.DataFrame(columns=columns)
 
-    for idx in range(5):
+    for idx in range(10):
         sub_table = pd.DataFrame(pd.NA, index=paths_list, columns=columns)
 
         for path in paths_list:
@@ -157,3 +153,46 @@ def build_table(n, p):
         table = pd.concat([table, sub_table])
 
     return table
+
+
+def plot_diff(graph_num, obs, densities):
+    """ Plot the differences
+    Parameters
+    ----------
+    graph_num: graph number
+    obs: number of observations
+    densities: densities of the graphs
+    """
+
+    # create dictionary of losses
+    exp_path = os.path.join(DATA_PATH, "experiments")
+    columns = [f"train_rec_vnl_p={d}" for d in densities] + \
+              [f"train_rec_true_p={d}" for d in densities] + \
+              [f"valid_rec_vnl_p={d}" for d in densities] + \
+              [f"valid_rec_true_p={d}" for d in densities]
+
+    df = pd.DataFrame(index=range(10), columns=columns)
+    for exp_num in range(10):
+        for density in densities:
+            graph_path = os.path.join(exp_path, f"experiment_{exp_num}", f"Graph_{graph_num}")
+            obs_path = os.path.join(graph_path, f"n={obs}_p={density}")
+            vnl = pd.read_pickle(os.path.join(obs_path, "loss_vanilla.pkl"))
+            rec = pd.read_pickle(os.path.join(obs_path, "loss_recon.pkl"))
+            true = pd.read_pickle(os.path.join(obs_path, "loss_true.pkl"))
+            df.loc[exp_num, f"train_rec_vnl_p={density}"] = rec[0] - vnl[0]
+            df.loc[exp_num, f"train_rec_true_p={density}"] = rec[0] - true[0]
+            df.loc[exp_num, f"valid_rec_vnl_p={density}"] = rec[1] - vnl[1]
+            df.loc[exp_num, f"valid_rec_true_p={density}"] = rec[1] - true[1]
+
+    dic = {column: df[column].mean() for column in df.columns}
+
+    # plot and save figure
+    fig, ax = plt.subplots(1, 1, figsize=(12, 7))
+    for idx, (key, value) in enumerate(dic.items()):
+        linestyle = "-" if "train" in key else "--"
+        ax.plot(value, color=sns.color_palette()[idx % 8], linestyle=linestyle, label=key)
+    ax.legend(loc="center left", bbox_to_anchor=(1, 0.5))
+    ax.set_xlabel("Epoch")
+    ax.set_ylabel("Difference")
+    ax.set_title("Differences in losses between recon loss and vanilla/true loss for n=10")
+    fig.savefig(os.path.join(exp_path, "diff", f"Graph_{graph_num}.pdf"), bbox_inches="tight")

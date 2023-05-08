@@ -64,12 +64,12 @@ num_obs_list = [10, 50, 100]
 edge_prob_list = np.round(np.arange(0.1, 0.91, 0.1), 2)
 rand_biadj_mat_list = {}
 
-for idx in range(num_runs):
-    for n in num_obs_list:
-        for p in edge_prob_list:
-            print(f"Generating sample with idx={idx}, num_obs={n}, and edge_prob={p}")
-            random.seed(idx)
-            rand_biadj_mat_list[f"{idx}_{n}_{p}"] = rand_biadj_mat(num_obs=n, edge_prob=p)
+# for idx in range(num_runs):
+#     for n in num_obs_list:
+#         for p in edge_prob_list:
+#             print(f"Generating sample with idx={idx}, num_obs={n}, and edge_prob={p}")
+#             random.seed(idx)
+#             rand_biadj_mat_list[f"{idx}_{n}_{p}"] = rand_biadj_mat(num_obs=n, edge_prob=p)
 
 
 # tcga dataset

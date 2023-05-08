@@ -18,7 +18,7 @@ def main(dataset_name, parent_path):
     # argument for estimation
     alpha = 0.05
     heuristic = True
-    method = "dcov_fast"
+    method = "xicor"
 
     # argument for architecture
     dof = None

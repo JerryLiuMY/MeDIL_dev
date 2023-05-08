@@ -1,0 +1,6 @@
+Graph: temp.nde
+Alg: it.unipi.di.clq.eps.lists.EPSc
+Time: 35
+Cliques: 88
+Removed: 0
+Sum: 462
