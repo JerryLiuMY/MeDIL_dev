@@ -3,7 +3,6 @@ import warnings
 
 from numpy.random import default_rng
 import numpy as np
-from scipy.special import comb
 from gues.grues import InputData as rand_walker
 
 from .ecc_algorithms import find_heuristic_clique_cover as find_h
@@ -159,7 +158,7 @@ class MedilCausalModel(object):
             if not hasattr(self, "cov"):
                 # generate random weights in +-[0.5, 2]
                 num_edges = self.biadj_mat.sum()
-                idcs = np.argwhere(biadj_mat)
+                idcs = np.argwhere(self.biadj_mat)
                 idcs[:, 1] += self.num_latent
 
                 weights = (self.rng.random(num_edges) * 1.5) + 0.5
@@ -236,10 +235,22 @@ class MedilCausalModel(object):
             "out_del": 1 / 3,
             "out_add": 1 / 3,
         }
-        num_moves = int(min(comb(self.num_obs, self.num_latent), 1000))
+        num_moves = 1000
         rw.mcmc(init, move_prob, num_moves)
 
-        self.udg = self.rng.choice(rw.markov_chain)
-        np.fill_diagonal(self.udg, True)
-        self.biadj_mat = find_h(self.udg)
-        np.fill_diagonal(self.udg, False)
+        self.udg = rw.uec = self.rng.choice(rw.markov_chain)
+
+        # # fing ECC
+        # np.fill_diagonal(self.udg, True)
+        # self.biadj_mat = find_h(self.udg) # or find_cm for exact
+
+        # # find ECC in polynomial time
+        rw.get_max_cpdag()
+        max_cpdag = rw.cpdag
+        sinks = np.flatnonzero(np.logical_and(max_cpdag.sum(1) == 0, max_cpdag.sum(0)))
+        nonsinks = np.delete(np.arange(self.num_obs), sinks)
+        order = np.append(nonsinks, sinks)
+        dag = np.triu(max_cpdag[:, order][order, :])
+        sources = np.flatnonzero(dag.sum(0) == 0)
+        dag[sources, sources] = True  # take de(sources) as cliques
+        self.biadj_mat = dag[sources, :]
