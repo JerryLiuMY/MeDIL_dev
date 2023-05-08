@@ -183,7 +183,6 @@ def plot_diff(graph_num, obs, densities):
             df.loc[exp_num, f"train_rec_true_p={density}"] = rec[0] - true[0]
             df.loc[exp_num, f"valid_rec_vnl_p={density}"] = rec[1] - vnl[1]
             df.loc[exp_num, f"valid_rec_true_p={density}"] = rec[1] - true[1]
-
     dic = {column: df[column].mean() for column in df.columns}
 
     # plot and save figure

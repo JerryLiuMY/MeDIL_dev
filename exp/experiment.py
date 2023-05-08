@@ -1,6 +1,6 @@
 from exp.examples import fixed_biadj_mat_list, conversion_dict
 from exp.examples import rand_biadj_mat_list, tcga_key_list
-from exp.examples import tcga_subsize, mnist_subsize, gene_subsize
+from exp.examples import tcga_subsize, mnist_subsize
 from sklearn.preprocessing import StandardScaler
 from gloabl_settings import DATA_PATH
 from exp.pipeline import pipeline_graph
@@ -136,8 +136,6 @@ def run_real_full(dataset_name, num_samps_real, heuristic, method, alpha, dof, d
         subsize = tcga_subsize
     elif dataset_name == "mnist":
         subsize = mnist_subsize
-    elif dataset_name == "gene":
-        subsize = gene_subsize
     else:
         raise ValueError("Invalid dataset name")
 
