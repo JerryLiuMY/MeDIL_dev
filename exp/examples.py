@@ -1,7 +1,5 @@
 import numpy as np
 import string
-import random
-from medil.functional_MCM import rand_biadj_mat
 
 # fixed graph
 conversion_dict = {
@@ -73,30 +71,24 @@ rand_biadj_mat_list = {}
 
 
 # tcga dataset
-tcga_size, num_obs = 17440, 8
-tcga_key_list = []
-tcga_subsize = 1000
-for i in range(10):
-    np.random.seed(i)
-    tcga_key_list.append(np.random.choice(tcga_size, size=num_obs))
+tcga_size, num_obs = 17440, 1000
+np.random.seed(0)
+tcga_key = np.random.choice(tcga_size, size=num_obs)
 
 
 # mnist dataset
-mnist_size, num_obs = 784, 8
-mnist_key_list = []
-mnist_subsize = 784
-for i in range(10):
-    np.random.seed(i)
-    mnist_key_list.append(np.random.choice(mnist_size, size=num_obs))
+mnist_size, num_obs = 784, 784
+np.random.seed(0)
+mnist_key = np.random.choice(mnist_size, size=num_obs)
 
 
-# gene dataset
-gene_size, num_obs = 23, 8
-gene_key_list = []
-gene_subsize = 23
-for i in range(10):
-    np.random.seed(i)
-    gene_key_list.append(np.random.choice(gene_size, size=num_obs))
+# # gene dataset
+# gene_size, num_obs = 23, 8
+# gene_key_list = []
+# gene_subsize = 23
+# for i in range(10):
+#     np.random.seed(i)
+#     gene_key_list.append(np.random.choice(gene_size, size=num_obs))
 
 
 # # sub paths

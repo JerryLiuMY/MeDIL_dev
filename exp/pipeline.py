@@ -66,17 +66,21 @@ def pipeline_graph(biadj_mat, num_samps, heuristic, method, alpha, dof, dof_meth
     run_vae_oracle(biadj_mat, train_loader, valid_loader, cov_train, cov_valid, path, seed)
 
     redundant_path = os.path.join(path, "redundant")
+    if not os.path.isdir(redundant_path):
+        os.mkdir(redundant_path)
     biadj_mat_redundant = assign_DoF(biadj_mat_recon, deg_of_freedom=dof, method=dof_method)
     np.save(os.path.join(redundant_path, "biadj_mat_redundant.npy"), biadj_mat_redundant)
     run_vae_suite(biadj_mat_redundant, train_loader, valid_loader, cov_train, cov_valid, redundant_path, seed)
 
     random_path = os.path.join(path, "random")
+    if not os.path.isdir(random_path):
+        os.mkdir(random_path)
     biadj_mat_random = np.random.choice(a=[False, True], size=biadj_mat_redundant.shape, p=[0.5, 0.5])
     np.save(os.path.join(random_path, "biadj_mat_random.npy"), biadj_mat_random)
     run_vae_suite(biadj_mat_random, train_loader, valid_loader, cov_train, cov_valid, random_path, seed)
 
 
-def pipeline(dataset, heuristic, method, alpha, dof, dof_method, path, seed):
+def pipeline_real(dataset, heuristic, method, alpha, dof, dof_method, path, seed):
     """ Pipeline function for estimating the shd and number of reconstructed latent
     Parameters
     ----------

@@ -1,6 +1,5 @@
 from exp.experiment import run_fixed
 from exp.experiment import run_random
-from exp.experiment import run_real_full
 from exp.experiment import run_real
 from exp.examples import num_samps_graph
 from exp.examples import num_samps_real
@@ -23,7 +22,7 @@ def main_graph(parent_path):
     dof = None
     dof_method = "uniform"
 
-    run = 0
+    run = 11
     # real dataset
     exp_path = os.path.join(parent_path, f"experiment_{run}")
     if not os.path.isdir(exp_path):
@@ -56,10 +55,9 @@ def main_real(dataset_name, parent_path):
     if not os.path.isdir(exp_path):
         os.mkdir(exp_path)
     run_real(dataset_name, num_samps_real, heuristic, method, alpha, dof, dof_method, exp_path, seed=0)
-    run_real_full(dataset_name, num_samps_real, heuristic, method, alpha, dof, dof_method, exp_path, seed=0)
 
 
 if __name__ == "__main__":
     parent_path = "../data/experiments"
-    dataset_name = "gene"
-    main_graph(parent_path)
+    dataset_name = "mnist"
+    main_real(dataset_name, parent_path)

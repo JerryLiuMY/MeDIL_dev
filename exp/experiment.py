@@ -1,10 +1,9 @@
 from exp.examples import fixed_biadj_mat_list, conversion_dict
-from exp.examples import rand_biadj_mat_list, tcga_key_list
-from exp.examples import tcga_subsize, mnist_subsize
+from exp.examples import rand_biadj_mat_list, tcga_key, mnist_key
 from sklearn.preprocessing import StandardScaler
 from gloabl_settings import DATA_PATH
 from exp.pipeline import pipeline_graph
-from exp.pipeline import pipeline
+from exp.pipeline import pipeline_real
 from datetime import datetime
 import pandas as pd
 import os
@@ -92,61 +91,16 @@ def run_real(dataset_name, num_samps_real, heuristic, method, alpha, dof, dof_me
     dataset_valid = pd.DataFrame(sc.fit_transform(dataset_valid), dataset_valid.index, dataset_valid.columns).values
 
     if dataset_name == "tcga":
-        dataset_key_list = tcga_key_list
-    else:
-        raise ValueError("Invalid dataset name")
-
-    for idx, dataset_key in enumerate(dataset_key_list):
-        graph_path = os.path.join(exp_path, f"Real_{idx}")
-        dataset_train_sub = dataset_train[:, dataset_key]
-        dataset_valid_sub = dataset_valid[:, dataset_key]
-        dataset = [dataset_train_sub, dataset_valid_sub]
-
-        if not os.path.isdir(graph_path):
-            os.mkdir(graph_path)
-
-        print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Working on real data {idx} with "
-              f"num_samps={num_samps_real}")
-        pipeline(dataset, heuristic, method, alpha, dof, dof_method, graph_path, seed=seed)
-
-
-def run_real_full(dataset_name, num_samps_real, heuristic, method, alpha, dof, dof_method, exp_path, seed):
-    """ Run MeDIL on real dataset
-    Parameters
-    ----------
-    dataset_name: name of dataset
-    num_samps_real: number of samples for real dataset
-    heuristic: whether to use heuristic or not
-    method: method for udg estimation
-    alpha: alpha value
-    dof: desired size of latent space of VAE
-    dof_method: how to distribute excess degrees of freedom to latent causal factors
-    exp_path: path for the experiment
-    seed: random seed for the experiments
-    """
-
-    dataset_path = os.path.join(DATA_PATH, "dataset")
-    sc = StandardScaler()
-    dataset_train = pd.read_csv(os.path.join(dataset_path, f"{dataset_name}_train.csv"))
-    dataset_valid = pd.read_csv(os.path.join(dataset_path, f"{dataset_name}_valid.csv"))
-    dataset_train = pd.DataFrame(sc.fit_transform(dataset_train), dataset_train.index, dataset_train.columns).values
-    dataset_valid = pd.DataFrame(sc.fit_transform(dataset_valid), dataset_valid.index, dataset_valid.columns).values
-
-    if dataset_name == "tcga":
-        subsize = tcga_subsize
+        dataset_key = tcga_key
     elif dataset_name == "mnist":
-        subsize = mnist_subsize
+        dataset_key = mnist_key
     else:
         raise ValueError("Invalid dataset name")
 
-    graph_path = os.path.join(exp_path, f"Real_Full")
-    dataset_train = dataset_train[:, :subsize]
-    dataset_valid = dataset_valid[:, :subsize]
-    dataset = [dataset_train, dataset_valid]
+    dataset_train_sub = dataset_train[:, dataset_key]
+    dataset_valid_sub = dataset_valid[:, dataset_key]
+    dataset = [dataset_train_sub, dataset_valid_sub]
 
-    if not os.path.isdir(graph_path):
-        os.mkdir(graph_path)
-
-    print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Working on real data full with "
+    print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Working on real data with "
           f"num_samps={num_samps_real}")
-    pipeline(dataset, heuristic, method, alpha, dof, dof_method, graph_path, seed=seed)
+    pipeline_real(dataset, heuristic, method, alpha, dof, dof_method, exp_path, seed=seed)
