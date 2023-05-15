@@ -1,7 +1,9 @@
-from medil.functional_MCM import rand_biadj_mat
 import numpy as np
 import string
 import random
+from medil.functional_MCM import MedilCausalModel as MCM
+from medil.functional_MCM import rand_biadj_mat
+
 
 # fixed graph
 conversion_dict = {
@@ -61,34 +63,29 @@ fixed_biadj_mat_list = [
 # random graph -- setting 1
 num_runs = 10
 num_obs_list = [10, 50, 100]
-edge_prob_list1 = np.round(np.arange(0.1, 0.91, 0.1), 2)
-rand_biadj_mat_list = {}
+edge_prob_list = np.round(np.arange(0.1, 0.91, 0.1), 2)
+rand_biadj_mat_list1 = {}
 
 for idx in range(num_runs):
     for n in num_obs_list:
-        for p in edge_prob_list1:
+        for p in edge_prob_list:
             print(f"Generating sample with idx={idx}, num_obs={n}, and edge_prob={p}")
             random.seed(idx)
-            rand_biadj_mat_list[f"{idx}_{n}_{p}"] = rand_biadj_mat(num_obs=n, edge_prob=p)
+            rand_biadj_mat_list1[f"{idx}_{n}_{p}"] = rand_biadj_mat(num_obs=n, edge_prob=p)
 
 
 # random graph -- setting 2
 num_runs = 10
 num_obs = 10
-num_latent_list2 = np.range(9) + 1
-rand_biadj_mat_list = {}
+num_latent_list = np.arange(9) + 1
+rand_biadj_mat_list2 = {}
 
 for idx in range(num_runs):
-    for num_latent in num_latent_list2:
-        flag = False
+    for num_latent in num_latent_list:
         print(f"Generating sample with idx={idx} and edge_prob={num_latent}")
         random.seed(idx)
-        while flag is False:
-            biadj_mat = rand_biadj_mat(num_obs=num_obs, edge_prob=np.random.uniform(size=1)[0])
-            if biadj_mat.shape[0] == num_latent:
-                rand_biadj_mat_list[f"{idx}_{num_latent}"] = biadj_mat
-                flag = True
-
+        biadj_mat = MCM().rand(num_obs=num_obs, num_latent=num_latent).biadj_mat
+        rand_biadj_mat_list2[f"{idx}_{num_latent}"] = biadj_mat
 
 # tcga dataset
 tcga_size, num_obs = 17440, 1000

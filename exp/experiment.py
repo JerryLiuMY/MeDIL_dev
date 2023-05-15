@@ -1,5 +1,5 @@
 from exp.examples import fixed_biadj_mat_list, conversion_dict
-from exp.examples import rand_biadj_mat_list, tcga_key, mnist_key, tumors_key
+from exp.examples import rand_biadj_mat_list2, tcga_key, mnist_key, tumors_key
 from sklearn.preprocessing import StandardScaler
 from gloabl_settings import DATA_PATH
 from exp.pipeline import pipeline_graph
@@ -51,7 +51,7 @@ def run_random1(num_samps_graph, heuristic, method, alpha, dof, dof_method, exp_
     seed: random seed for the experiments
     """
 
-    for key, biadj_mat in rand_biadj_mat_list.items():
+    for key, biadj_mat in rand_biadj_mat_list1.items():
         idx, n, p = key.split("_")
         graph_path = os.path.join(exp_path, f"Graph_{idx}")
         if not os.path.isdir(graph_path):
@@ -82,7 +82,7 @@ def run_random2(num_samps_graph, heuristic, method, alpha, dof, dof_method, exp_
     seed: random seed for the experiments
     """
 
-    for key, biadj_mat in rand_biadj_mat_list.items():
+    for key, biadj_mat in rand_biadj_mat_list2.items():
         idx, num_latent = key.split("_")
         graph_path = os.path.join(exp_path, f"Graph_{idx}")
         if not os.path.isdir(graph_path):
