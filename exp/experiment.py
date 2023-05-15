@@ -1,5 +1,5 @@
 from exp.examples import fixed_biadj_mat_list, conversion_dict
-from exp.examples import rand_biadj_mat_list, tcga_key, mnist_key
+from exp.examples import rand_biadj_mat_list, tcga_key, mnist_key, tumors_key
 from sklearn.preprocessing import StandardScaler
 from gloabl_settings import DATA_PATH
 from exp.pipeline import pipeline_graph
@@ -37,7 +37,7 @@ def run_fixed(num_samps_graph, heuristic, method, alpha, dof, dof_method, exp_pa
         )
 
 
-def run_random(num_samps_graph, heuristic, method, alpha, dof, dof_method, exp_path, seed):
+def run_random1(num_samps_graph, heuristic, method, alpha, dof, dof_method, exp_path, seed):
     """ Run MeDIL on the random graphs
     Parameters
     ----------
@@ -60,6 +60,37 @@ def run_random(num_samps_graph, heuristic, method, alpha, dof, dof_method, exp_p
         print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Working on graph {idx} with "
               f"num_samps={num_samps_graph}, n={n}, p={p}")
         folder_name = f"n={n}_p={p}"
+        folder_path = os.path.join(graph_path, folder_name)
+        if not os.path.isdir(folder_path):
+            os.mkdir(folder_path)
+            pipeline_graph(
+                biadj_mat, num_samps_graph, heuristic, method, alpha, dof, dof_method, folder_path, seed=seed
+            )
+
+
+def run_random2(num_samps_graph, heuristic, method, alpha, dof, dof_method, exp_path, seed):
+    """ Run MeDIL on the random graphs
+    Parameters
+    ----------
+    num_samps_graph: number of samples for graph
+    heuristic: whether to use heuristic or not
+    method: method for udg estimation
+    alpha: alpha value
+    dof: desired size of latent space of VAE
+    dof_method: how to distribute excess degrees of freedom to latent causal factors
+    exp_path: path for the experiment
+    seed: random seed for the experiments
+    """
+
+    for key, biadj_mat in rand_biadj_mat_list.items():
+        idx, num_latent = key.split("_")
+        graph_path = os.path.join(exp_path, f"Graph_{idx}")
+        if not os.path.isdir(graph_path):
+            os.mkdir(graph_path)
+
+        print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Working on graph {idx} with "
+              f"num_samps={num_samps_graph}, num_latent={num_latent}")
+        folder_name = f"num_latent={num_latent}"
         folder_path = os.path.join(graph_path, folder_name)
         if not os.path.isdir(folder_path):
             os.mkdir(folder_path)
@@ -94,6 +125,8 @@ def run_real(dataset_name, num_samps_real, heuristic, method, alpha, dof, dof_me
         dataset_key = tcga_key
     elif dataset_name == "mnist":
         dataset_key = mnist_key
+    elif dataset_name == "tumors":
+        dataset_key = tumors_key
     else:
         raise ValueError("Invalid dataset name")
 

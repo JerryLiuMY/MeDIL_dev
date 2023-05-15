@@ -110,7 +110,7 @@ def pipeline_real(dataset, heuristic, method, alpha, dof, dof_method, path, seed
     np.save(os.path.join(path, "ud_graph_recon.npy"), ud_graph_recon)
 
     info = {"heuristic": heuristic, "method": method, "alpha": alpha, "dof": dof, "dof_method": dof_method}
-    with open("info.pkl", "wb") as f:
+    with open(os.path.join(path, "info.pkl"), "wb") as f:
         pickle.dump(info, f)
 
     # define VAE training and validation sample

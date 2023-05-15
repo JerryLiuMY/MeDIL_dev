@@ -1,5 +1,5 @@
 from exp.experiment import run_fixed
-from exp.experiment import run_random
+from exp.experiment import run_random1
 from exp.experiment import run_real
 from exp.examples import num_samps_graph
 from exp.examples import num_samps_real
@@ -30,7 +30,7 @@ def main_graph(parent_path):
 
     # fixed and random dataset
     run_fixed(num_samps_graph, heuristic, method, alpha, dof, dof_method, exp_path, seed=run)
-    run_random(num_samps_graph, heuristic, method, alpha, dof, dof_method, exp_path, seed=run)
+    run_random1(num_samps_graph, heuristic, method, alpha, dof, dof_method, exp_path, seed=run)
 
 
 def main_real(dataset_name, parent_path):
@@ -59,5 +59,5 @@ def main_real(dataset_name, parent_path):
 
 if __name__ == "__main__":
     parent_path = "../data/experiments"
-    dataset_name = "mnist"
+    dataset_name = "tumors"
     main_real(dataset_name, parent_path)
