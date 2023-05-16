@@ -1,5 +1,4 @@
 import numpy as np
-from numpy.random import default_rng
 
 from gues.grues import InputData as rand_walker
 
@@ -31,10 +30,22 @@ def project(udg):
     return biadj_mat
 
 
-mnist_projected = project(mnist_udg)
-tcga_projected = project(tcga_udg)
-tumor_projected = project(tumor_udg)
+# mnist_projected = project(mnist_udg)
+# tcga_projected = project(tcga_udg)
+# tumor_projected = project(tumor_udg)
 
-np.save("project_udgs/mnist_projected.npy", mnist_projected)
-np.save("project_udgs/tcga_projected.npy", tcga_projected)
-np.save("project_udgs/tumor_projected.npy", tumor_projected)
+# np.save("project_udgs/mnist_projected.npy", mnist_projected)
+# np.save("project_udgs/tcga_projected.npy", tcga_projected)
+# np.save("project_udgs/tumor_projected.npy", tumor_projected)
+
+mnist_projected = np.load("project_udgs/mnist_projected.npy")
+tcga_projected = np.load("project_udgs/tcga_projected.npy")
+tumor_projected = np.load("project_udgs/tumor_projected.npy")
+
+# np.savetxt(
+#     "project_udgs/mnist_projected.csv", mnist_projected.astype(int), delimiter=","
+# )
+# np.savetxt("project_udgs/tcga_projected.csv", tcga_projected.astype(int), delimiter=",")
+# np.savetxt(
+#     "project_udgs/tumor_projected.csv", tumor_projected.astype(int), delimiter=","
+# )
