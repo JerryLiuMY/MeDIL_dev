@@ -9,7 +9,7 @@ tcga_udg = np.load("project_udgs/tcga_udg-0.05.npy")
 tumor_udg = np.load("project_udgs/tumor_udg-0.05.npy")
 
 
-def project(udg):
+def rm_project(udg):
     num_obs = len(udg)
     np.fill_diagonal(udg, False)
 
@@ -30,22 +30,32 @@ def project(udg):
     return biadj_mat
 
 
-# mnist_projected = project(mnist_udg)
-# tcga_projected = project(tcga_udg)
-# tumor_projected = project(tumor_udg)
+# mnist_rm_projected = rm_project(mnist_udg)
+# tcga_rm_projected = rm_project(tcga_udg)
+# tumor_rm_projected = rm_project(tumor_udg)
 
-# np.save("project_udgs/mnist_projected.npy", mnist_projected)
-# np.save("project_udgs/tcga_projected.npy", tcga_projected)
-# np.save("project_udgs/tumor_projected.npy", tumor_projected)
+# np.save("project_udgs/rm_mnist_projected.npy", rm_mnist_projected)
+# np.save("project_udgs/rm_tcga_projected.npy", rm_tcga_projected)
+# np.save("project_udgs/rm_tumor_projected.npy", rm_tumor_projected)
 
-mnist_projected = np.load("project_udgs/mnist_projected.npy")
-tcga_projected = np.load("project_udgs/tcga_projected.npy")
-tumor_projected = np.load("project_udgs/tumor_projected.npy")
+# rm_mnist_projected = np.load("project_udgs/rm_mnist_projected.npy")
+# rm_tcga_projected = np.load("project_udgs/rm_tcga_projected.npy")
+# rm_tumor_projected = np.load("project_udgs/rm_tumor_projected.npy")
 
-# np.savetxt(
-#     "project_udgs/mnist_projected.csv", mnist_projected.astype(int), delimiter=","
-# )
-# np.savetxt("project_udgs/tcga_projected.csv", tcga_projected.astype(int), delimiter=",")
-# np.savetxt(
-#     "project_udgs/tumor_projected.csv", tumor_projected.astype(int), delimiter=","
-# )
+
+def add_project(udg):
+    num_obs = len(udg)
+    np.fill_diagonal(udg, False)
+
+    U = np.copy(udg)
+    compliment_U = ~U
+    np.fill_diagonal(compliment_U, False)
+
+    # V_ij == 1 if and only if there's a k adjacent to j but not i
+    V = compliment_U @ U
+
+    # W_ij == 1 if and only if there's k such that i--j--k is an induced path
+    W = np.logical_and(V, U).T
+
+    # This orients all v-structures and removes edges violating CI relations
+    U[W] = False
