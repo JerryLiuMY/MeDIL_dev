@@ -49,7 +49,7 @@ def main_real(dataset_name, parent_path):
     method = "xicor"
 
     # argument for architecture
-    dof = None
+    dof = 3560
     dof_method = "uniform"
 
     # real dataset
@@ -62,4 +62,4 @@ def main_real(dataset_name, parent_path):
 if __name__ == "__main__":
     parent_path = "../data/experiments"
     dataset_name = "tumors"
-    main_graph(dataset_name)
+    main_real(dataset_name, parent_path)

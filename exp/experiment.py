@@ -1,5 +1,5 @@
 from exp.examples import fixed_biadj_mat_list, conversion_dict
-from exp.examples import rand_biadj_mat_list2, tcga_key, mnist_key, tumors_key
+from exp.examples import tcga_key, mnist_key, tumors_key
 from sklearn.preprocessing import StandardScaler
 from gloabl_settings import DATA_PATH
 from exp.pipeline import pipeline_graph

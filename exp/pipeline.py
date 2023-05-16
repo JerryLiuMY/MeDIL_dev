@@ -100,14 +100,14 @@ def pipeline_real(dataset, heuristic, method, alpha, dof, dof_method, path, seed
     samples, valid_samples = dataset
 
     # learn MeDIL model and save graph
-    print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Learning the MeDIL model")
-    biadj_mat_recon = estimation(samples, heuristic=heuristic, method=method, alpha=alpha)
-    biadj_mat_redundant = assign_DoF(biadj_mat_recon, deg_of_freedom=dof, method=dof_method)
-    np.save(os.path.join(path, "biadj_mat_recon.npy"), biadj_mat_recon)
-    np.save(os.path.join(path, "biadj_mat_redundant.npy"), biadj_mat_redundant)
-
-    ud_graph_recon = recover_ug(biadj_mat_recon)
-    np.save(os.path.join(path, "ud_graph_recon.npy"), ud_graph_recon)
+    # print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Learning the MeDIL model")
+    # biadj_mat_recon = estimation(samples, heuristic=heuristic, method=method, alpha=alpha)
+    # biadj_mat_redundant = assign_DoF(biadj_mat_recon, deg_of_freedom=dof, method=dof_method)
+    # np.save(os.path.join(path, "biadj_mat_recon.npy"), biadj_mat_recon)
+    # np.save(os.path.join(path, "biadj_mat_redundant.npy"), biadj_mat_redundant)
+    #
+    # ud_graph_recon = recover_ug(biadj_mat_recon)
+    # np.save(os.path.join(path, "ud_graph_recon.npy"), ud_graph_recon)
 
     info = {"heuristic": heuristic, "method": method, "alpha": alpha, "dof": dof, "dof_method": dof_method}
     with open(os.path.join(path, "info.pkl"), "wb") as f:
@@ -119,5 +119,6 @@ def pipeline_real(dataset, heuristic, method, alpha, dof, dof_method, path, seed
     valid_loader = load_dataset_real(valid_samples, batch_size)
 
     # perform vae training
+    biadj_mat_recon = np.load(os.path.join(path, "biadj_mat_projected.npy"))
     cov_train, cov_valid = np.eye(samples.shape[1]), np.eye(samples.shape[1])
     run_vae_suite(biadj_mat_recon, train_loader, valid_loader, cov_train, cov_valid, path, seed)
