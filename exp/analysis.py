@@ -154,43 +154,82 @@ def build_table(n, p):
     return table
 
 
-def plot_diff(graph_num, obs, densities):
+def plot_diff(graph_num, obs, density):
     """ Plot the differences
     Parameters
     ----------
     graph_num: graph number
     obs: number of observations
-    densities: densities of the graphs
+    density: density of the graphs
     """
 
     # create dictionary of losses
     exp_path = os.path.join(DATA_PATH, "experiments")
-    columns = [f"train_rec_vnl_p={d}" for d in densities] + \
-              [f"train_rec_true_p={d}" for d in densities] + \
-              [f"valid_rec_vnl_p={d}" for d in densities] + \
-              [f"valid_rec_true_p={d}" for d in densities]
+    columns = [f"Train-$\Delta$-Baseline"] + [f"Valid-$\Delta$-Baseline"] + \
+              [f"Train-$\Delta$-True"] + [f"Valid-$\Delta$-True"]
 
     df = pd.DataFrame(index=range(10), columns=columns)
     for exp_num in range(10):
-        for density in densities:
-            graph_path = os.path.join(exp_path, f"experiment_{exp_num}", f"Graph_{graph_num}")
-            obs_path = os.path.join(graph_path, f"n={obs}_p={density}")
-            vnl = pd.read_pickle(os.path.join(obs_path, "loss_vanilla.pkl"))
-            rec = pd.read_pickle(os.path.join(obs_path, "loss_recon.pkl"))
-            true = pd.read_pickle(os.path.join(obs_path, "loss_true.pkl"))
-            df.loc[exp_num, f"train_rec_vnl_p={density}"] = rec[0] - vnl[0]
-            df.loc[exp_num, f"train_rec_true_p={density}"] = rec[0] - true[0]
-            df.loc[exp_num, f"valid_rec_vnl_p={density}"] = rec[1] - vnl[1]
-            df.loc[exp_num, f"valid_rec_true_p={density}"] = rec[1] - true[1]
+        graph_path = os.path.join(exp_path, f"experiment_{exp_num}", f"Graph_{graph_num}")
+        obs_path = os.path.join(graph_path, f"n={obs}_p={density}")
+        vnl = pd.read_pickle(os.path.join(obs_path, "loss_vanilla.pkl"))
+        rec = pd.read_pickle(os.path.join(obs_path, "loss_recon.pkl"))
+        true = pd.read_pickle(os.path.join(obs_path, "loss_true.pkl"))
+        df.loc[exp_num, f"Train-$\Delta$-Baseline"] = vnl[0] - rec[0]
+        df.loc[exp_num, f"Valid-$\Delta$-Baseline"] = vnl[1] - rec[1]
+        df.loc[exp_num, f"Train-$\Delta$-True"] = true[0] - rec[0]
+        df.loc[exp_num, f"Valid-$\Delta$-True"] = true[1] - rec[1]
     dic = {column: df[column].mean() for column in df.columns}
 
     # plot and save figure
-    fig, ax = plt.subplots(1, 1, figsize=(12, 7))
+    fig, ax = plt.subplots(1, 1, figsize=(6, 3))
     for idx, (key, value) in enumerate(dic.items()):
-        linestyle = "-" if "train" in key else "--"
+        linestyle = "-" if "Train" in key else "--"
         ax.plot(value, color=sns.color_palette()[idx % 8], linestyle=linestyle, label=key)
-    ax.legend(loc="center left", bbox_to_anchor=(1, 0.5))
+    ax.legend(loc="upper right")
     ax.set_xlabel("Epoch")
-    ax.set_ylabel("Difference")
-    ax.set_title("Differences in losses between recon loss and vanilla/true loss for n=10")
+    ax.set_ylabel("Loss Difference")
+    ax.set_title(f"Differences in losses between Baseline/True and NCFA loss for p={density}")
+    fig.savefig(os.path.join(exp_path, "diff", f"Graph_{graph_num}.pdf"), bbox_inches="tight")
+
+
+def plot_learning(graph_num, obs, density):
+    """ Plot the differences
+    Parameters
+    ----------
+    graph_num: graph number
+    obs: number of observations
+    density: density of the graphs
+    """
+
+    # create dictionary of losses
+    exp_path = os.path.join(DATA_PATH, "experiments")
+    columns = [f"Train-NCFA"] + [f"Valid-NCFA"] + \
+              [f"Train-True"] + [f"Valid-True"] + \
+              [f"Train-Baseline"] + [f"Valid-Baseline"]
+
+    df = pd.DataFrame(index=range(10), columns=columns)
+    for exp_num in range(10):
+        graph_path = os.path.join(exp_path, f"experiment_{exp_num}", f"Graph_{graph_num}")
+        obs_path = os.path.join(graph_path, f"n={obs}_p={density}")
+        vnl = pd.read_pickle(os.path.join(obs_path, "loss_vanilla.pkl"))
+        rec = pd.read_pickle(os.path.join(obs_path, "loss_recon.pkl"))
+        true = pd.read_pickle(os.path.join(obs_path, "loss_true.pkl"))
+        df.loc[exp_num, f"Train-NCFA"] = rec[0]
+        df.loc[exp_num, f"Valid-NCFA"] = rec[1]
+        df.loc[exp_num, f"Train-Baseline"] = vnl[0]
+        df.loc[exp_num, f"Valid-Baseline"] = vnl[1]
+        df.loc[exp_num, f"Train-True"] = true[0]
+        df.loc[exp_num, f"Valid-True"] = true[1]
+    dic = {column: df[column].mean() for column in df.columns}
+
+    # plot and save figure
+    fig, ax = plt.subplots(1, 1, figsize=(6, 3))
+    for idx, (key, value) in enumerate(dic.items()):
+        linestyle = "-" if "Train" in key else "--"
+        ax.plot(value, color=sns.color_palette()[idx % 8], linestyle=linestyle, label=key)
+    ax.legend(loc="upper right")
+    ax.set_xlabel("Epoch")
+    ax.set_ylabel("Losses")
+    ax.set_title(f"Losses of NCFA, Baseline, and True for p={density}")
     fig.savefig(os.path.join(exp_path, "diff", f"Graph_{graph_num}.pdf"), bbox_inches="tight")
