@@ -60,6 +60,6 @@ def main_real(dataset_name, parent_path):
 
 
 if __name__ == "__main__":
-    parent_path = "../data/experiments"
+    parent_path = "/Volumes/SanDisk_2T/MeDIL/data/dataset"
     dataset_name = "tumors"
     main_real(dataset_name, parent_path)

@@ -1,2 +1,2 @@
 import os
-DATA_PATH = "/Users/mingyu/Desktop/data"
+DATA_PATH = "/Volumes/SanDisk_2T/MeDIL/data"

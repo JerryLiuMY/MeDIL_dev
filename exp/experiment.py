@@ -1,5 +1,5 @@
 from exp.examples import fixed_biadj_mat_list, conversion_dict
-from exp.examples import tcga_key, mnist_key, tumors_key
+from exp.examples import tcga_key, mnist_key, tumors_key, GP_key
 from sklearn.preprocessing import StandardScaler
 from gloabl_settings import DATA_PATH
 from exp.pipeline import pipeline_graph
@@ -128,7 +128,7 @@ def run_real(dataset_name, num_samps_real, heuristic, method, alpha, dof, dof_me
     elif dataset_name == "tumors":
         dataset_key = tumors_key
     elif dataset_name == "GP":
-        dataset_key = tumors_key
+        dataset_key = GP_key
     else:
         raise ValueError("Invalid dataset name")
 
