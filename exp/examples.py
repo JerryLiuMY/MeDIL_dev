@@ -99,19 +99,19 @@ np.random.seed(0)
 mnist_key = np.random.choice(mnist_size, size=num_obs)
 
 
-# mnist dataset
+# tumor dataset
 tumors_size, num_obs = 356, 356
 np.random.seed(0)
 tumors_key = np.random.choice(tumors_size, size=num_obs)
 
 
-# # gene dataset
-# gene_size, num_obs = 23, 8
-# gene_key_list = []
-# gene_subsize = 23
-# for i in range(10):
-#     np.random.seed(i)
-#     gene_key_list.append(np.random.choice(gene_size, size=num_obs))
+# gene dataset
+gene_size, num_obs = 23, 8
+gene_key_list = []
+gene_subsize = 23
+for i in range(10):
+    np.random.seed(i)
+    gene_key_list.append(np.random.choice(gene_size, size=num_obs))
 
 
 # # sub paths

@@ -127,6 +127,8 @@ def run_real(dataset_name, num_samps_real, heuristic, method, alpha, dof, dof_me
         dataset_key = mnist_key
     elif dataset_name == "tumors":
         dataset_key = tumors_key
+    elif dataset_name == "GP":
+        dataset_key = tumors_key
     else:
         raise ValueError("Invalid dataset name")
 
