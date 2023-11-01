@@ -62,7 +62,7 @@ sampleDataFromG <- function(n,G,funcType="GAM", parsFuncType=list(B=randomB(G),k
     # All rights reserved.  See the file COPYING for license terms. 
     # 
     # 
-    # Generates n samples according to structural equation models based on the DAG G 
+    # Generates n samples according to structural equation models based on the DAG G
     # with specified function class and given noise distribution. Uses Gaussian processes to sample the 
     # nonlinear functions.
     # 

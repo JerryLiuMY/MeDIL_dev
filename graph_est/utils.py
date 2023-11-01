@@ -92,3 +92,21 @@ def generate_linspace(lin_min, lin_max, size):
     linspace = np.array(sorted(set(np.round(linspace)))).astype(int)
 
     return linspace
+
+
+def biadj_to_adj(biadj_mat):
+    """ Convert the biadjacency matrix into adjacency matrix
+    Parameters
+    ----------
+    biadj_mat: directed bidjacency matrix
+
+    Returns
+    -------
+    adj_mat: directed djacency matrix
+
+    """
+    m, n = biadj_mat.shape
+    adj_mat = np.zeros(((m+n), (m+n)))
+    adj_mat[0:m, m:(m+n)] = biadj_mat
+
+    return adj_mat
