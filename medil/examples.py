@@ -113,7 +113,26 @@ max_assignment_num.add_mcm(
     ]
 )
 
-examples = (simple_M, triangle, more_latents, am_cm_diff, max_assignment_num)
+fork_and_chain = ExampleUDGAndMCM("fork {0, 2} -- 1 and chain 1 -- 3 -- 4 -- 5")
+fork_and_chain.add_udg(
+    [
+        [1, 1, 0, 0, 0],
+        [1, 1, 1, 1, 0],
+        [0, 1, 1, 0, 0],
+        [0, 1, 0, 1, 1],
+        [0, 0, 0, 1, 1],
+    ]
+)
+
+
+examples = (
+    simple_M,
+    triangle,
+    more_latents,
+    am_cm_diff,
+    max_assignment_num,
+    fork_and_chain,
+)
 
 
 ## Data
