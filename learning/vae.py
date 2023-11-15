@@ -12,9 +12,9 @@ class VariationalAutoencoder(nn.Module):
     def forward(self, x):
         mu, logvar = self.encoder(x)
         latent = self.latent_sample(mu, logvar)
-        x_recon = self.decoder(latent)
+        x_recon, logcov = self.decoder(latent)
 
-        return x_recon, mu, logvar
+        return x_recon, logcov, mu, logvar
 
     def latent_sample(self, mu, logvar):
         # the re-parameterization trick
@@ -68,8 +68,12 @@ class Decoder(Block):
         # decoder layer -- estimate mean
         self.dec_mean = SparseLinear(in_features=self.latent_dim, out_features=self.output_dim, mask=mask)
 
+        # decoder layer -- estimate log-covariance
+        self.fc_logcov = nn.Linear(in_features=self.latent_dim, out_features=self.output_dim)
+
     def forward(self, z):
         # linear layer
         mean = self.dec_mean(z)
+        logcov = self.fc_logcov(z)
 
-        return mean
+        return mean, logcov

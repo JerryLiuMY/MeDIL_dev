@@ -7,11 +7,12 @@ from exp.examples import num_samps_real
 import os
 
 
-def main_graph(parent_path):
+def main_graph(parent_path, run):
     """ Run MeDIL on the random graphs
     Parameters
     ----------
     parent_path: parent path for the experiments
+    run: run number of the experiment
     """
 
     # argument for estimation
@@ -23,16 +24,15 @@ def main_graph(parent_path):
     dof = None
     dof_method = "uniform"
 
-    run = 10
     # real dataset
     exp_path = os.path.join(parent_path, f"experiment_{run}")
     if not os.path.isdir(exp_path):
         os.mkdir(exp_path)
 
     # fixed and random dataset
-    # run_fixed(num_samps_graph, heuristic, method, alpha, dof, dof_method, exp_path, seed=run)
+    run_fixed(num_samps_graph, heuristic, method, alpha, dof, dof_method, exp_path, seed=run)
     # run_random1(num_samps_graph, heuristic, method, alpha, dof, dof_method, exp_path, seed=run)
-    run_random2(num_samps_graph, heuristic, method, alpha, dof, dof_method, exp_path, seed=run)
+    # run_random2(num_samps_graph, heuristic, method, alpha, dof, dof_method, exp_path, seed=run)
 
 
 def main_real(dataset_name, parent_path):
@@ -59,7 +59,12 @@ def main_real(dataset_name, parent_path):
     run_real(dataset_name, num_samps_real, heuristic, method, alpha, dof, dof_method, exp_path, seed=0)
 
 
+# if __name__ == "__main__":
+#     parent_path = "/Volumes/SanDisk_2T/MeDIL/data/dataset"
+#     dataset_name = "tumors"
+#     main_real(dataset_name, parent_path)
+
+
 if __name__ == "__main__":
     parent_path = "/Volumes/SanDisk_2T/MeDIL/data/dataset"
-    dataset_name = "tumors"
-    main_real(dataset_name, parent_path)
+    main_graph(parent_path, run=11)

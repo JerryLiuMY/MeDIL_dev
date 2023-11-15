@@ -5,15 +5,13 @@ import pickle
 import os
 
 
-def run_vae_oracle(biadj_mat, train_loader, valid_loader, cov_train, cov_valid, path, seed):
+def run_vae_oracle(biadj_mat, train_loader, valid_loader, path, seed):
     """ Run training loop for oracle VAE
     Parameters
     ----------
     biadj_mat: ground truth adjacency matrix
     train_loader: loader for training data
     valid_loader: loader for validation data
-    cov_train: covariance matrix for training data
-    cov_valid: covariance matrix for validation data
     path: path to save the experiments
     seed: random seed for the experiments
     """
@@ -21,7 +19,7 @@ def run_vae_oracle(biadj_mat, train_loader, valid_loader, cov_train, cov_valid, 
     # train & validate oracle VAE
     m, n = biadj_mat.shape
     model_true, loss_true, error_true = train_vae(
-        m, n, biadj_mat, train_loader, valid_loader, cov_train, cov_valid, seed
+        m, n, biadj_mat, train_loader, valid_loader, seed
     )
     torch.save(model_true, os.path.join(path, "model_true.pt"))
     with open(os.path.join(path, "loss_true.pkl"), "wb") as handle:
@@ -30,15 +28,13 @@ def run_vae_oracle(biadj_mat, train_loader, valid_loader, cov_train, cov_valid, 
         pickle.dump(error_true, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
-def run_vae_suite(biadj_mat_recon, train_loader, valid_loader, cov_train, cov_valid, path, seed):
+def run_vae_suite(biadj_mat_recon, train_loader, valid_loader, path, seed):
     """ Run training loop for exact VAE
     Parameters
     ----------
     biadj_mat_recon: adjacency matrix for heuristic graph
     train_loader: loader for training data
     valid_loader: loader for validation data
-    cov_train: covariance matrix for training data
-    cov_valid: covariance matrix for validation data
     path: path to save the experiments
     seed: random seed for the experiments
     """
@@ -46,7 +42,7 @@ def run_vae_suite(biadj_mat_recon, train_loader, valid_loader, cov_train, cov_va
     # train & validate heuristic MeDIL VAE
     mh, nh = biadj_mat_recon.shape
     model_recon, loss_recon, error_recon = train_vae(
-        mh, nh, biadj_mat_recon, train_loader, valid_loader, cov_train, cov_valid, seed
+        mh, nh, biadj_mat_recon, train_loader, valid_loader, seed
     )
     torch.save(model_recon, os.path.join(path, "model_recon.pt"))
     with open(os.path.join(path, "loss_recon.pkl"), "wb") as handle:
@@ -57,7 +53,7 @@ def run_vae_suite(biadj_mat_recon, train_loader, valid_loader, cov_train, cov_va
     # train & validate vanilla VAE
     biadj_mat_vanilla = np.ones((mh, nh))
     model_vanilla, loss_vanilla, error_vanilla = train_vae(
-        mh, nh, biadj_mat_vanilla, train_loader, valid_loader, cov_train, cov_valid, seed
+        mh, nh, biadj_mat_vanilla, train_loader, valid_loader, seed
     )
     torch.save(model_vanilla, os.path.join(path, "model_vanilla.pt"))
     with open(os.path.join(path, "loss_vanilla.pkl"), "wb") as handle:

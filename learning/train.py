@@ -6,15 +6,13 @@ import torch
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
-def train_vae(m, n, biadj_mat, train_loader, valid_loader, cov_train, cov_valid, seed):
+def train_vae(m, n, biadj_mat, train_loader, valid_loader, seed):
     """ Training VAE with the specified image dataset
     :param m: dimension of the latent variable
     :param n: dimension of the observed variable
     :param train_loader: training image dataset loader
     :param valid_loader: validation image dataset loader
     :param biadj_mat: the adjacency matrix of the directed graph
-    :param cov_train: covariance matrix for the training set
-    :param cov_valid: covariance matrix for the validation set
     :param seed: random seed for the experiments
     :return: trained model and training loss history
     """
@@ -37,8 +35,6 @@ def train_vae(m, n, biadj_mat, train_loader, valid_loader, cov_train, cov_valid,
     model.train()
     train_elbo, train_error = [], []
     valid_elbo, valid_error = [], []
-    cov_train = cov_train.astype("float32")
-    cov_train = torch.tensor(cov_train).to(device)
 
     for epoch in range(epoch):
         print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Training on epoch {epoch}...")
@@ -47,9 +43,9 @@ def train_vae(m, n, biadj_mat, train_loader, valid_loader, cov_train, cov_valid,
         for x_batch, _ in train_loader:
             batch_size = x_batch.shape[0]
             x_batch = x_batch.to(device)
-            recon_batch, mu_batch, logvar_batch = model(x_batch)
-            loss = elbo_gaussian(x_batch, recon_batch, cov_train, mu_batch, logvar_batch, beta)
-            error = recon_error(x_batch, recon_batch, cov_train, weighted=False)
+            recon_batch, logcov_batch, mu_batch, logvar_batch = model(x_batch)
+            loss = elbo_gaussian(x_batch, recon_batch, logcov_batch, mu_batch, logvar_batch, beta)
+            error = recon_error(x_batch, recon_batch, logcov_batch, weighted=False)
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
@@ -68,7 +64,7 @@ def train_vae(m, n, biadj_mat, train_loader, valid_loader, cov_train, cov_valid,
         print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Finish training epoch {epoch} with loss {train_lb}")
 
         # append validation loss
-        valid_lb, valid_er = valid_vae(model, valid_loader, cov_valid)
+        valid_lb, valid_er = valid_vae(model, valid_loader)
         valid_elbo.append(valid_lb)
         valid_error.append(valid_er)
 
@@ -80,11 +76,10 @@ def train_vae(m, n, biadj_mat, train_loader, valid_loader, cov_train, cov_valid,
     return model, elbo, error
 
 
-def valid_vae(model, valid_loader, cov_valid):
+def valid_vae(model, valid_loader):
     """ Training VAE with the specified image dataset
     :param model: trained VAE model
     :param valid_loader: validation image dataset loader
-    :param cov_valid: covariance matrix for the validation set
     :return: validation loss
     """
 
@@ -94,16 +89,14 @@ def valid_vae(model, valid_loader, cov_valid):
     # set to evaluation mode
     model.eval()
     valid_lb, valid_er, nbatch = 0., 0., 0
-    cov_valid = cov_valid.astype("float32")
-    cov_valid = torch.tensor(cov_valid).to(device)
 
     for x_batch, _ in valid_loader:
         with torch.no_grad():
             batch_size = x_batch.shape[0]
             x_batch = x_batch.to(device)
-            recon_batch, mu_batch, logvar_batch = model(x_batch)
-            loss = elbo_gaussian(x_batch, recon_batch, cov_valid, mu_batch, logvar_batch, beta)
-            error = recon_error(x_batch, recon_batch, cov_valid, weighted=False)
+            recon_batch, logcov_batch, mu_batch, logvar_batch = model(x_batch)
+            loss = elbo_gaussian(x_batch, recon_batch, logcov_batch, mu_batch, logvar_batch, beta)
+            error = recon_error(x_batch, recon_batch, logcov_batch, weighted=False)
 
             # update loss and nbatch
             valid_lb += loss.item() / batch_size
@@ -118,11 +111,11 @@ def valid_vae(model, valid_loader, cov_valid):
     return valid_lb, valid_er
 
 
-def elbo_gaussian(x, x_recon, cov, mu, logvar, beta):
+def elbo_gaussian(x, x_recon, logcov, mu, logvar, beta):
     """ Calculating loss for variational autoencoder
     :param x: original image
     :param x_recon: reconstruction in the output layer
-    :param cov: covariance matrix of the data distribution
+    :param logcov: log of covariance matrix of the data distribution
     :param mu: mean in the fitted variational distribution
     :param logvar: log of the variance in the variational distribution
     :param beta: beta
@@ -136,9 +129,13 @@ def elbo_gaussian(x, x_recon, cov, mu, logvar, beta):
     kl_div = - 0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
 
     # reconstruction loss
+    cov = logcov.exp_()
+    cov = apply_along_axis(torch.diag, cov, axis=0)
     diff = x - x_recon
+    n = diff.shape[0]
+
     recon_loss = torch.sum(
-        torch.det(cov) + torch.diagonal(torch.mm(torch.mm(diff, torch.inverse(cov)), torch.transpose(diff, 0, 1)))
+        torch.det(cov) + torch.tensor([diff[i, :] @ torch.inverse(cov)[i, :, :] @ diff[i, :] for i in range(n)])
     ).mul(-1/2)
 
     # elbo
@@ -147,11 +144,11 @@ def elbo_gaussian(x, x_recon, cov, mu, logvar, beta):
     return - loss
 
 
-def recon_error(x, x_recon, cov, weighted):
+def recon_error(x, x_recon, logcov, weighted):
     """ Reconstruction error given x and x_recon
     :param x: original image
     :param x_recon: reconstruction in the output layer
-    :param cov: covariance matrix of the data distribution
+    :param logcov: covariance matrix of the data distribution
     :param weighted: whether to use weighted reconstruction
 
     Returns
@@ -159,13 +156,35 @@ def recon_error(x, x_recon, cov, weighted):
     error: reconstruction error
     """
 
+    # reconstruction loss
+    cov = logcov.exp_()
+    cov = apply_along_axis(torch.diag, cov, axis=0)
     diff = x - x_recon
+    n = diff.shape[0]
 
     if weighted:
         error = torch.sum(
-            torch.diagonal(torch.mm(torch.mm(diff, torch.inverse(cov)), torch.transpose(diff, 0, 1)))
+            torch.det(cov) + torch.tensor([diff[i, :] @ torch.inverse(cov)[i, :, :] @ diff[i, :] for i in range(n)])
         ).mul(-1/2)
     else:
         error = torch.linalg.norm(diff, ord=2)
 
     return error
+
+
+def apply_along_axis(function, x, axis=0):
+    """ Helper function to return along a particular axis
+    Parameters
+    ----------
+    function: function to be applied
+    x: data
+    axis: axis to apply the function
+
+    Returns
+    -------
+    The output applied to the axis
+    """
+
+    return torch.stack([
+        function(x_i) for x_i in torch.unbind(x, dim=axis)
+    ], dim=axis)

@@ -35,7 +35,7 @@ def pipeline_graph(biadj_mat, num_samps, heuristic, method, alpha, dof, dof_meth
     # create biadj_mat and samples
     print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Sampling from biadj_mat")
     time.sleep(1)
-    samples, cov = sample_from_minMCM(biadj_mat, num_samps=num_samps)
+    samples, _ = sample_from_minMCM(biadj_mat, num_samps=num_samps)
 
     # learn MeDIL model and save graph
     print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Learning the MeDIL model")
@@ -57,28 +57,26 @@ def pipeline_graph(biadj_mat, num_samps, heuristic, method, alpha, dof, dof_meth
     # define VAE training and validation sample
     print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Preparing training and validation data for VAE")
     train_loader = load_dataset(samples, num_latent, batch_size)
-    cov_train = cov[num_latent:, num_latent:]
 
-    valid_samples, cov_valid = sample_from_minMCM(biadj_mat, num_samps=num_valid)
+    valid_samples, _ = sample_from_minMCM(biadj_mat, num_samps=num_valid)
     valid_loader = load_dataset(valid_samples, num_latent, batch_size)
-    cov_valid = cov_valid[num_latent:, num_latent:]
 
     # perform vae training
-    run_vae_oracle(biadj_mat, train_loader, valid_loader, cov_train, cov_valid, path, seed)
+    run_vae_oracle(biadj_mat, train_loader, valid_loader, path, seed)
 
     redundant_path = os.path.join(path, "redundant")
     if not os.path.isdir(redundant_path):
         os.mkdir(redundant_path)
     biadj_mat_redundant = assign_DoF(biadj_mat_recon, deg_of_freedom=dof, method=dof_method)
     np.save(os.path.join(redundant_path, "biadj_mat_redundant.npy"), biadj_mat_redundant)
-    run_vae_suite(biadj_mat_redundant, train_loader, valid_loader, cov_train, cov_valid, redundant_path, seed)
+    run_vae_suite(biadj_mat_redundant, train_loader, valid_loader, redundant_path, seed)
 
     random_path = os.path.join(path, "random")
     if not os.path.isdir(random_path):
         os.mkdir(random_path)
     biadj_mat_random = np.random.choice(a=[False, True], size=biadj_mat_redundant.shape, p=[0.5, 0.5])
     np.save(os.path.join(random_path, "biadj_mat_random.npy"), biadj_mat_random)
-    run_vae_suite(biadj_mat_random, train_loader, valid_loader, cov_train, cov_valid, random_path, seed)
+    run_vae_suite(biadj_mat_random, train_loader, valid_loader, random_path, seed)
 
 
 def pipeline_real(dataset, heuristic, method, alpha, dof, dof_method, path, seed):
@@ -124,5 +122,4 @@ def pipeline_real(dataset, heuristic, method, alpha, dof, dof_method, path, seed
 
     # perform vae training
     biadj_mat_recon = np.load(os.path.join(path, "biadj_mat_projected.npy"))
-    cov_train, cov_valid = np.eye(samples.shape[1]), np.eye(samples.shape[1])
-    run_vae_suite(biadj_mat_recon, train_loader, valid_loader, cov_train, cov_valid, path, seed)
+    run_vae_suite(biadj_mat_recon, train_loader, valid_loader, path, seed)
