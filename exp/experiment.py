@@ -51,6 +51,7 @@ def run_random1(num_samps_graph, heuristic, method, alpha, dof, dof_method, exp_
     seed: random seed for the experiments
     """
 
+    from exp.examples import rand_biadj_mat_list1
     for key, biadj_mat in rand_biadj_mat_list1.items():
         idx, n, p = key.split("_")
         graph_path = os.path.join(exp_path, f"Graph_{idx}")
@@ -82,6 +83,7 @@ def run_random2(num_samps_graph, heuristic, method, alpha, dof, dof_method, exp_
     seed: random seed for the experiments
     """
 
+    from exp.examples import rand_biadj_mat_list2
     for key, biadj_mat in rand_biadj_mat_list2.items():
         idx, num_latent = key.split("_")
         graph_path = os.path.join(exp_path, f"Graph_{idx}")
