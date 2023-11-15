@@ -4,6 +4,7 @@ from datetime import datetime
 import numpy as np
 import torch
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+torch.autograd.set_detect_anomaly(True)
 
 
 def train_vae(m, n, biadj_mat, train_loader, valid_loader, seed):
@@ -129,13 +130,13 @@ def elbo_gaussian(x, x_recon, logcov, mu, logvar, beta):
     kl_div = - 0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
 
     # reconstruction loss
-    cov = logcov.exp_()
+    cov = torch.exp(logcov)
     cov = apply_along_axis(torch.diag, cov, axis=0)
-    diff = x - x_recon
-    n = diff.shape[0]
+    cov = cov.mean(axis=0)
 
+    diff = x - x_recon
     recon_loss = torch.sum(
-        torch.det(cov) + torch.tensor([diff[i, :] @ torch.inverse(cov)[i, :, :] @ diff[i, :] for i in range(n)])
+        torch.det(cov) + torch.diagonal(torch.mm(torch.mm(diff, torch.inverse(cov)), torch.transpose(diff, 0, 1)))
     ).mul(-1/2)
 
     # elbo
@@ -157,14 +158,14 @@ def recon_error(x, x_recon, logcov, weighted):
     """
 
     # reconstruction loss
-    cov = logcov.exp_()
+    cov = torch.exp(logcov)
     cov = apply_along_axis(torch.diag, cov, axis=0)
-    diff = x - x_recon
-    n = diff.shape[0]
+    cov = cov.mean(axis=0)
 
+    diff = x - x_recon
     if weighted:
         error = torch.sum(
-            torch.det(cov) + torch.tensor([diff[i, :] @ torch.inverse(cov)[i, :, :] @ diff[i, :] for i in range(n)])
+            torch.det(cov) + torch.diagonal(torch.mm(torch.mm(diff, torch.inverse(cov)), torch.transpose(diff, 0, 1)))
         ).mul(-1/2)
     else:
         error = torch.linalg.norm(diff, ord=2)
