@@ -18,7 +18,7 @@ def main_graph(parent_path, run):
     # argument for estimation
     data_type = "GP"
     heuristic = True
-    method = "xicor"
+    method = "dcov_big"
     alpha = 0.05
 
     # argument for architecture
@@ -68,4 +68,4 @@ def main_real(dataset_name, parent_path):
 
 if __name__ == "__main__":
     parent_path = "/Volumes/SanDisk_2T/MeDIL/data/experiments"
-    main_graph(parent_path, run=14)
+    main_graph(parent_path, run=0)
