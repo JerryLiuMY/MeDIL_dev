@@ -6,3 +6,4 @@ seaborn~=0.12.1
 networkx~=2.8.8
 setuptools~=65.5.0
 sklearn
+# rpy2

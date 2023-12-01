@@ -16,9 +16,10 @@ def main_graph(parent_path, run):
     """
 
     # argument for estimation
-    alpha = 0.05
+    data_type = "GP"
     heuristic = True
     method = "xicor"
+    alpha = 0.05
 
     # argument for architecture
     dof = None
@@ -30,9 +31,9 @@ def main_graph(parent_path, run):
         os.mkdir(exp_path)
 
     # fixed and random dataset
-    run_fixed(num_samps_graph, heuristic, method, alpha, dof, dof_method, exp_path, seed=run)
-    # run_random1(num_samps_graph, heuristic, method, alpha, dof, dof_method, exp_path, seed=run)
-    # run_random2(num_samps_graph, heuristic, method, alpha, dof, dof_method, exp_path, seed=run)
+    run_fixed(num_samps_graph, data_type, heuristic, method, alpha, dof, dof_method, exp_path, seed=run)
+    # run_random1(num_samps_graph, data_type, heuristic, method, alpha, dof, dof_method, exp_path, seed=run)
+    # run_random2(num_samps_graph, data_type, heuristic, method, alpha, dof, dof_method, exp_path, seed=run)
 
 
 def main_real(dataset_name, parent_path):

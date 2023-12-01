@@ -69,7 +69,7 @@ class Decoder(Block):
         self.dec_mean = SparseLinear(in_features=self.latent_dim, out_features=self.output_dim, mask=mask)
 
         # decoder layer -- estimate log-covariance
-        self.fc_logcov = nn.Linear(in_features=self.latent_dim, out_features=self.output_dim)
+        self.fc_logcov = SparseLinear(in_features=self.latent_dim, out_features=self.output_dim, mask=mask)
 
     def forward(self, z):
         # linear layer

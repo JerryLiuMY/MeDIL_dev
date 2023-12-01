@@ -1,5 +1,5 @@
 from exp.run_funcs import run_vae_oracle, run_vae_suite
-from medil.functional_MCM import sample_from_minMCM
+from learning.data_loader import sample_from_graph
 from learning.data_loader import load_dataset, load_dataset_real
 from exp.analysis import recover_ug
 from graph_est.estimation import estimation
@@ -13,12 +13,13 @@ import time
 import os
 
 
-def pipeline_graph(biadj_mat, num_samps, heuristic, method, alpha, dof, dof_method, path, seed):
+def pipeline_graph(biadj_mat, num_samps, data_type, heuristic, method, alpha, dof, dof_method, path, seed):
     """ Pipeline function for estimating the shd and number of reconstructed latent
     Parameters
     ----------
     biadj_mat: adjacency matrix of the bipartite graph
     num_samps: number of samples
+    data_type: type of the data to be generated
     heuristic: whether to use heuristic or not
     method: method for udg estimation
     alpha: significance level
@@ -35,7 +36,7 @@ def pipeline_graph(biadj_mat, num_samps, heuristic, method, alpha, dof, dof_meth
     # create biadj_mat and samples
     print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Sampling from biadj_mat")
     time.sleep(1)
-    samples, _ = sample_from_minMCM(biadj_mat, num_samps=num_samps)
+    samples = sample_from_graph(biadj_mat, num_samps=num_samps, data_type=data_type)
 
     # learn MeDIL model and save graph
     print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Learning the MeDIL model")
@@ -58,7 +59,7 @@ def pipeline_graph(biadj_mat, num_samps, heuristic, method, alpha, dof, dof_meth
     print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Preparing training and validation data for VAE")
     train_loader = load_dataset(samples, num_latent, batch_size)
 
-    valid_samples, _ = sample_from_minMCM(biadj_mat, num_samps=num_valid)
+    valid_samples = sample_from_graph(biadj_mat, num_samps=num_valid, data_type=data_type)
     valid_loader = load_dataset(valid_samples, num_latent, batch_size)
 
     # perform vae training

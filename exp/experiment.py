@@ -9,11 +9,12 @@ import pandas as pd
 import os
 
 
-def run_fixed(num_samps_graph, heuristic, method, alpha, dof, dof_method, exp_path, seed):
+def run_fixed(num_samps_graph, data_type, heuristic, method, alpha, dof, dof_method, exp_path, seed):
     """ Run MeDIL on the fixed graphs
     Parameters
     ----------
     num_samps_graph: number of samples for graph
+    data_type: type of the data to be generated
     heuristic: whether to use heuristic or not
     method: method for udg estimation
     alpha: alpha value
@@ -33,15 +34,16 @@ def run_fixed(num_samps_graph, heuristic, method, alpha, dof, dof_method, exp_pa
         print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Working on graph {graph_idx} with "
               f"num_samps={num_samps_graph}")
         pipeline_graph(
-            biadj_mat, num_samps_graph, heuristic, method, alpha, dof, dof_method, graph_path, seed=seed
+            biadj_mat, num_samps_graph, data_type, heuristic, method, alpha, dof, dof_method, graph_path, seed=seed
         )
 
 
-def run_random1(num_samps_graph, heuristic, method, alpha, dof, dof_method, exp_path, seed):
+def run_random1(num_samps_graph, data_type, heuristic, method, alpha, dof, dof_method, exp_path, seed):
     """ Run MeDIL on the random graphs
     Parameters
     ----------
     num_samps_graph: number of samples for graph
+    data_type: type of the data to be generated
     heuristic: whether to use heuristic or not
     method: method for udg estimation
     alpha: alpha value
@@ -65,15 +67,16 @@ def run_random1(num_samps_graph, heuristic, method, alpha, dof, dof_method, exp_
         if not os.path.isdir(folder_path):
             os.mkdir(folder_path)
             pipeline_graph(
-                biadj_mat, num_samps_graph, heuristic, method, alpha, dof, dof_method, folder_path, seed=seed
+                biadj_mat, num_samps_graph, data_type, heuristic, method, alpha, dof, dof_method, folder_path, seed=seed
             )
 
 
-def run_random2(num_samps_graph, heuristic, method, alpha, dof, dof_method, exp_path, seed):
+def run_random2(num_samps_graph, data_type, heuristic, method, alpha, dof, dof_method, exp_path, seed):
     """ Run MeDIL on the random graphs
     Parameters
     ----------
     num_samps_graph: number of samples for graph
+    data_type: type of the data to be generated
     heuristic: whether to use heuristic or not
     method: method for udg estimation
     alpha: alpha value
@@ -97,7 +100,7 @@ def run_random2(num_samps_graph, heuristic, method, alpha, dof, dof_method, exp_
         if not os.path.isdir(folder_path):
             os.mkdir(folder_path)
             pipeline_graph(
-                biadj_mat, num_samps_graph, heuristic, method, alpha, dof, dof_method, folder_path, seed=seed
+                biadj_mat, num_samps_graph, data_type, heuristic, method, alpha, dof, dof_method, folder_path, seed=seed
             )
 
 
