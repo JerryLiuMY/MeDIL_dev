@@ -38,7 +38,7 @@ def run_fixed(num_samps_graph, data_type, heuristic, method, alpha, dof, dof_met
         )
 
 
-def run_random1(num_samps_graph, data_type, heuristic, method, alpha, dof, dof_method, exp_path, seed):
+def run_random(num_samps_graph, data_type, heuristic, method, alpha, dof, dof_method, exp_path, seed):
     """ Run MeDIL on the random graphs
     Parameters
     ----------
