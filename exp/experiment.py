@@ -4,6 +4,7 @@ from sklearn.preprocessing import StandardScaler
 from gloabl_settings import DATA_PATH
 from exp.pipeline import pipeline_graph
 from exp.pipeline import pipeline_real
+# from exp.examples import rand_biadj_mat_list
 from datetime import datetime
 import pandas as pd
 import os
@@ -53,7 +54,6 @@ def run_random(num_samps_graph, data_type, heuristic, method, alpha, dof, dof_me
     seed: random seed for the experiments
     """
 
-    from exp.examples import rand_biadj_mat_list
     for key, biadj_mat in rand_biadj_mat_list.items():
         idx, n, p = key.split("_")
         graph_path = os.path.join(exp_path, f"Graph_{idx}")

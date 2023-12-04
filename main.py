@@ -6,18 +6,19 @@ from exp.examples import num_samps_real
 import os
 
 
-def main_graph(parent_path, run):
+def main_graph(parent_path, run_func, run):
     """ Run MeDIL on the random graphs
     Parameters
     ----------
     parent_path: parent path for the experiments
+    run_func: running function
     run: run number of the experiment
     """
 
     # argument for estimation
-    data_type = "GP"
+    data_type = "ordinary"
     heuristic = True
-    method = "dcov_big"
+    method = "dcov_fast"
     alpha = 0.05
 
     # argument for architecture
@@ -30,8 +31,31 @@ def main_graph(parent_path, run):
         os.mkdir(exp_path)
 
     # fixed and random dataset
-    run_fixed(num_samps_graph, data_type, heuristic, method, alpha, dof, dof_method, exp_path, seed=run)
-    run_random(num_samps_graph, data_type, heuristic, method, alpha, dof, dof_method, exp_path, seed=run)
+    run_func(num_samps_graph, data_type, heuristic, method, alpha, dof, dof_method, exp_path, seed=run)
+
+
+def main_fixed(parent_path, run):
+    """ Run MeDIL on the random graphs
+    Parameters
+    ----------
+    parent_path: parent path for the experiments
+    run: run number of the experiment
+    """
+
+    run_func = run_fixed
+    main_graph(parent_path, run_func, run)
+
+
+def main_random(parent_path, run):
+    """ Run MeDIL on the random graphs
+    Parameters
+    ----------
+    parent_path: parent path for the experiments
+    run: run number of the experiment
+    """
+
+    run_func = run_random
+    main_graph(parent_path, run_func, run)
 
 
 def main_real(dataset_name, parent_path):
@@ -66,4 +90,4 @@ def main_real(dataset_name, parent_path):
 
 if __name__ == "__main__":
     parent_path = "/Volumes/SanDisk_2T/MeDIL/data/experiments"
-    main_graph(parent_path, run=0)
+    main_fixed(parent_path, run=0)
