@@ -69,7 +69,7 @@ def main_real(dataset_name, parent_path):
     # argument for estimation
     alpha = 0.05
     heuristic = True
-    method = "xicor"
+    method = "dcov_fast"
 
     # argument for architecture
     dof = 3560
@@ -90,4 +90,4 @@ def main_real(dataset_name, parent_path):
 
 if __name__ == "__main__":
     parent_path = "/Volumes/SanDisk_2T/MeDIL/data/experiments"
-    main_fixed(parent_path, run=0)
+    main_random(parent_path, run=0)
