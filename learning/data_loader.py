@@ -5,7 +5,8 @@ from rpy2.robjects.packages import STAP
 from graph_est.utils import biadj_to_adj
 import numpy as np
 import torch
-
+from rpy2.robjects import numpy2ri
+numpy2ri.activate()
 
 def load_dataset(samples, num_latent, batch_size):
     """ Generate dataset given the adjacency matrix, number of samples and batch size

@@ -53,8 +53,8 @@ def run_random1(num_samps_graph, data_type, heuristic, method, alpha, dof, dof_m
     seed: random seed for the experiments
     """
 
-    from exp.examples import rand_biadj_mat_list1
-    for key, biadj_mat in rand_biadj_mat_list1.items():
+    from exp.examples import rand_biadj_mat_list
+    for key, biadj_mat in rand_biadj_mat_list.items():
         idx, n, p = key.split("_")
         graph_path = os.path.join(exp_path, f"Graph_{idx}")
         if not os.path.isdir(graph_path):
@@ -63,39 +63,6 @@ def run_random1(num_samps_graph, data_type, heuristic, method, alpha, dof, dof_m
         print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Working on graph {idx} with "
               f"num_samps={num_samps_graph}, n={n}, p={p}")
         folder_name = f"n={n}_p={p}"
-        folder_path = os.path.join(graph_path, folder_name)
-        if not os.path.isdir(folder_path):
-            os.mkdir(folder_path)
-            pipeline_graph(
-                biadj_mat, num_samps_graph, data_type, heuristic, method, alpha, dof, dof_method, folder_path, seed=seed
-            )
-
-
-def run_random2(num_samps_graph, data_type, heuristic, method, alpha, dof, dof_method, exp_path, seed):
-    """ Run MeDIL on the random graphs
-    Parameters
-    ----------
-    num_samps_graph: number of samples for graph
-    data_type: type of the data to be generated
-    heuristic: whether to use heuristic or not
-    method: method for udg estimation
-    alpha: alpha value
-    dof: desired size of latent space of VAE
-    dof_method: how to distribute excess degrees of freedom to latent causal factors
-    exp_path: path for the experiment
-    seed: random seed for the experiments
-    """
-
-    from exp.examples import rand_biadj_mat_list2
-    for key, biadj_mat in rand_biadj_mat_list2.items():
-        idx, num_latent = key.split("_")
-        graph_path = os.path.join(exp_path, f"Graph_{idx}")
-        if not os.path.isdir(graph_path):
-            os.mkdir(graph_path)
-
-        print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Working on graph {idx} with "
-              f"num_samps={num_samps_graph}, num_latent={num_latent}")
-        folder_name = f"num_latent={num_latent}"
         folder_path = os.path.join(graph_path, folder_name)
         if not os.path.isdir(folder_path):
             os.mkdir(folder_path)
