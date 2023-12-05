@@ -62,7 +62,7 @@ fixed_biadj_mat_list = [
 
 # random graph
 num_runs = 10
-num_obs = 100
+num_obs = 10
 edge_prob_list = np.round(np.arange(0.1, 0.91, 0.1), 2)
 rand_biadj_mat_list = {}
 

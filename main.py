@@ -16,7 +16,7 @@ def main_graph(parent_path, run_func, run):
     """
 
     # argument for estimation
-    data_type = "ordinary"
+    data_type = "GP"
     heuristic = True
     method = "dcov_fast"
     alpha = 0.05
@@ -90,4 +90,4 @@ def main_real(dataset_name, parent_path):
 
 if __name__ == "__main__":
     parent_path = "/Volumes/SanDisk_2T/MeDIL/data/experiments"
-    main_random(parent_path, run=0)
+    main_random(parent_path, run=11)

@@ -172,8 +172,8 @@ def plot_diff(graph_num, obs, density):
     for exp_num in range(10):
         graph_path = os.path.join(exp_path, f"experiment_{exp_num}", f"Graph_{graph_num}")
         obs_path = os.path.join(graph_path, f"n={obs}_p={density}")
-        vnl = pd.read_pickle(os.path.join(obs_path, "loss_vanilla.pkl"))
-        rec = pd.read_pickle(os.path.join(obs_path, "loss_recon.pkl"))
+        vnl = pd.read_pickle(os.path.join(obs_path, "redundant", "loss_vanilla.pkl"))
+        rec = pd.read_pickle(os.path.join(obs_path, "redundant", "loss_recon.pkl"))
         true = pd.read_pickle(os.path.join(obs_path, "loss_true.pkl"))
         df.loc[exp_num, f"Train-$\Delta$-Baseline"] = vnl[0] - rec[0]
         df.loc[exp_num, f"Valid-$\Delta$-Baseline"] = vnl[1] - rec[1]
@@ -212,8 +212,8 @@ def plot_learning(graph_num, obs, density):
     for exp_num in range(10):
         graph_path = os.path.join(exp_path, f"experiment_{exp_num}", f"Graph_{graph_num}")
         obs_path = os.path.join(graph_path, f"n={obs}_p={density}")
-        vnl = pd.read_pickle(os.path.join(obs_path, "loss_vanilla.pkl"))
-        rec = pd.read_pickle(os.path.join(obs_path, "loss_recon.pkl"))
+        vnl = pd.read_pickle(os.path.join(obs_path, "redundant", "loss_vanilla.pkl"))
+        rec = pd.read_pickle(os.path.join(obs_path, "redundant", "loss_recon.pkl"))
         true = pd.read_pickle(os.path.join(obs_path, "loss_true.pkl"))
         df.loc[exp_num, f"Train-NCFA"] = rec[0]
         df.loc[exp_num, f"Valid-NCFA"] = rec[1]
