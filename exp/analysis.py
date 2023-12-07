@@ -99,17 +99,17 @@ def build_table(n, p):
                 result_path = os.path.join(graph_path)
 
             # hrstc graph
-            loss_recon = pd.read_pickle(os.path.join(result_path, "loss_recon.pkl"))
-            error_recon = pd.read_pickle(os.path.join(result_path, "error_recon.pkl"))
+            loss_recon = pd.read_pickle(os.path.join(result_path, "redundant", "loss_recon.pkl"))
+            error_recon = pd.read_pickle(os.path.join(result_path, "redundant", "error_recon.pkl"))
             sub_table.loc[path, "loss_recon_train"] = loss_recon[0][-1]
             sub_table.loc[path, "loss_recon_valid"] = loss_recon[1][-1]
             sub_table.loc[path, "error_recon_train"] = error_recon[0][-1]
             sub_table.loc[path, "error_recon_valid"] = error_recon[1][-1]
 
             # vanilla graph
-            loss_vanilla = pd.read_pickle(os.path.join(result_path, "loss_vanilla.pkl"))
+            loss_vanilla = pd.read_pickle(os.path.join(result_path, "redundant", "loss_vanilla.pkl"))
             error_vanilla = pd.read_pickle(
-                os.path.join(result_path, "error_vanilla.pkl")
+                os.path.join(result_path, "redundant", "error_vanilla.pkl")
             )
             sub_table.loc[path, "loss_vanilla_train"] = loss_vanilla[0][-1]
             sub_table.loc[path, "loss_vanilla_valid"] = loss_vanilla[1][-1]
@@ -154,11 +154,12 @@ def build_table(n, p):
     return table
 
 
-def plot_diff(graph_num, obs, density):
+def plot_diff(graph_nums, exp_nums, obs, density):
     """ Plot the differences
     Parameters
     ----------
-    graph_num: graph number
+    graph_nums: graph numbers
+    exp_nums: experiment numbers
     obs: number of observations
     density: density of the graphs
     """
@@ -168,9 +169,9 @@ def plot_diff(graph_num, obs, density):
     columns = [f"Train-$\Delta$-Baseline"] + [f"Valid-$\Delta$-Baseline"] + \
               [f"Train-$\Delta$-True"] + [f"Valid-$\Delta$-True"]
 
-    df = pd.DataFrame(index=range(10), columns=columns)
-    for exp_num in range(10):
-        graph_path = os.path.join(exp_path, f"experiment_{exp_num}", f"Graph_{graph_num}")
+    df = pd.DataFrame(index=exp_nums, columns=columns)
+    for exp_num in exp_nums:
+        graph_path = os.path.join(exp_path, f"experiment_{exp_num}", f"Graph_{graph_nums}")
         obs_path = os.path.join(graph_path, f"n={obs}_p={density}")
         vnl = pd.read_pickle(os.path.join(obs_path, "redundant", "loss_vanilla.pkl"))
         rec = pd.read_pickle(os.path.join(obs_path, "redundant", "loss_recon.pkl"))
@@ -190,7 +191,7 @@ def plot_diff(graph_num, obs, density):
     ax.set_xlabel("Epoch")
     ax.set_ylabel("Loss Difference")
     ax.set_title(f"Differences in losses between Baseline/True and NCFA loss for p={density}")
-    fig.savefig(os.path.join(exp_path, "diff", f"Graph_{graph_num}.pdf"), bbox_inches="tight")
+    fig.savefig(os.path.join(exp_path, "diff", f"Graph_{graph_nums}.pdf"), bbox_inches="tight")
 
 
 def plot_learning(graph_num, obs, density):
