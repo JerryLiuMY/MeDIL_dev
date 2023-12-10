@@ -182,15 +182,40 @@ def plot_diff(graph_nums, exp_nums, obs, density):
         df.loc[exp_num, f"Valid-$\Delta$-True"] = true[1] - rec[1]
     dic = {column: df[column].mean() for column in df.columns}
 
+    df_gp = pd.DataFrame(index=exp_nums, columns=columns)
+    for exp_num in exp_nums:
+        exp_num_gp = exp_num + 10
+        graph_path = os.path.join(exp_path, f"experiment_{exp_num_gp}", f"Graph_{graph_nums}")
+        obs_path = os.path.join(graph_path, f"n={obs}_p={density}")
+        vnl = pd.read_pickle(os.path.join(obs_path, "redundant", "loss_vanilla.pkl"))
+        rec = pd.read_pickle(os.path.join(obs_path, "redundant", "loss_recon.pkl"))
+        true = pd.read_pickle(os.path.join(obs_path, "loss_true.pkl"))
+        df_gp.loc[exp_num_gp, f"Train-$\Delta$-Baseline"] = vnl[0] - rec[0]
+        df_gp.loc[exp_num_gp, f"Valid-$\Delta$-Baseline"] = vnl[1] - rec[1]
+        df_gp.loc[exp_num_gp, f"Train-$\Delta$-True"] = true[0] - rec[0]
+        df_gp.loc[exp_num_gp, f"Valid-$\Delta$-True"] = true[1] - rec[1]
+    dic_gp = {column: df_gp[column].mean() for column in df.columns}
+
     # plot and save figure
-    fig, ax = plt.subplots(1, 1, figsize=(6, 3))
+    fig, ax = plt.subplots(1, 2, figsize=(12, 5))
     for idx, (key, value) in enumerate(dic.items()):
         linestyle = "-" if "Train" in key else "--"
-        ax.plot(value, color=sns.color_palette()[idx % 8], linestyle=linestyle, label=key)
-    ax.legend(loc="upper right")
-    ax.set_xlabel("Epoch")
-    ax.set_ylabel("Loss Difference")
-    ax.set_title(f"Differences in losses between Baseline/True and NCFA loss for p={density}")
+        ax[0].plot(value, color=sns.color_palette()[idx % 8], linestyle=linestyle, label=key)
+    ax[0].legend(loc="upper right")
+    ax[0].set_xlabel("Epoch")
+    ax[0].set_ylabel("Loss Difference")
+    ax[0].set_ylim(-5, 10)
+    ax[0].set_title(f"Baseline/True $\Delta$ NCFA loss for p={density}")
+
+    for idx, (key_gp, value_gp) in enumerate(dic_gp.items()):
+        linestyle = "-" if "Train" in key_gp else "--"
+        ax[1].plot(value_gp, color=sns.color_palette()[idx % 8], linestyle=linestyle, label=key_gp)
+    ax[1].legend(loc="upper right")
+    ax[1].set_xlabel("Epoch")
+    ax[1].set_ylabel("Loss Difference")
+    ax[1].set_ylim(-5, 8)
+    ax[1].set_title(f"Baseline/True $\Delta$ NCFA loss for p={density}")
+
     fig.savefig(os.path.join(exp_path, "diff", f"Graph_{graph_nums}.pdf"), bbox_inches="tight")
 
 
