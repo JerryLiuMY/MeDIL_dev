@@ -7,6 +7,7 @@ from medil.functional_MCM import assign_DoF
 from learning.params import params_dict
 from datetime import datetime
 from project_udgs.project_udgs import rm_project
+from medil.ecc_algorithms import find_heuristic_1pc
 import numpy as np
 import pickle
 import time
@@ -109,8 +110,8 @@ def pipeline_real(dataset, heuristic, method, alpha, dof, dof_method, path, seed
     ud_graph_recon = recover_ug(biadj_mat_recon)
     np.save(os.path.join(path, "ud_graph_recon.npy"), ud_graph_recon)
 
-    biadj_mat_projected = rm_project(ud_graph_recon)
-    np.save(os.path.join(path, "biadj_mat_projected.npy"), biadj_mat_projected)
+    biadj_mat_1pc = find_heuristic_1pc(ud_graph_recon)
+    np.save(os.path.join(path, "biadj_mat_1pc.npy"), biadj_mat_1pc)
 
     info = {"heuristic": heuristic, "method": method, "alpha": alpha, "dof": dof, "dof_method": dof_method}
     with open(os.path.join(path, "info.pkl"), "wb") as f:
@@ -122,5 +123,5 @@ def pipeline_real(dataset, heuristic, method, alpha, dof, dof_method, path, seed
     valid_loader = load_dataset_real(valid_samples, batch_size)
 
     # perform vae training
-    biadj_mat_recon = np.load(os.path.join(path, "biadj_mat_projected.npy"))
-    run_vae_suite(biadj_mat_recon, train_loader, valid_loader, path, seed)
+    biadj_mat_1pc = np.load(os.path.join(path, "biadj_mat_1pc.npy"))
+    run_vae_suite(biadj_mat_1pc, train_loader, valid_loader, path, seed)

@@ -8,6 +8,7 @@ import torch
 from rpy2.robjects import numpy2ri
 numpy2ri.activate()
 
+
 def load_dataset(samples, num_latent, batch_size):
     """ Generate dataset given the adjacency matrix, number of samples and batch size
     Parameters
