@@ -131,7 +131,7 @@ def pipeline_real(dataset, heuristic, method, alpha, dof, dof_method, path, seed
     valid_loader = load_dataset_real(valid_samples, batch_size)
 
     # perform vae training
-    biadj_mat = np.load(os.path.join(path, "biadj_mat.npy"))
+    biadj_mat = np.load(os.path.join(path, "biadj_mat_recon.npy"))
     run_vae_suite(biadj_mat, train_loader, valid_loader, path, seed)
 
     biadj_mat_1pc = np.load(os.path.join(path_1pc, "biadj_mat_1pc.npy"))
