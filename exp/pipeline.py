@@ -95,6 +95,14 @@ def pipeline_real(dataset, heuristic, method, alpha, dof, dof_method, path, seed
     seed: random seed
     """
 
+    # define paths
+    path_1pc = path + "_1pc"
+    if not os.path.isdir(path):
+        os.mkdir(path)
+
+    if not os.path.isdir(path_1pc):
+        os.mkdir(path_1pc)
+
     # load parameters
     np.random.seed(seed)
     batch_size = params_dict["batch_size"]
@@ -110,12 +118,12 @@ def pipeline_real(dataset, heuristic, method, alpha, dof, dof_method, path, seed
     ud_graph_recon = recover_ug(biadj_mat_recon)
     np.save(os.path.join(path, "ud_graph_recon.npy"), ud_graph_recon)
 
-    biadj_mat_1pc = find_heuristic_1pc(ud_graph_recon)
-    np.save(os.path.join(path, "biadj_mat_1pc.npy"), biadj_mat_1pc)
-
     info = {"heuristic": heuristic, "method": method, "alpha": alpha, "dof": dof, "dof_method": dof_method}
     with open(os.path.join(path, "info.pkl"), "wb") as f:
         pickle.dump(info, f)
+
+    biadj_mat_1pc = find_heuristic_1pc(ud_graph_recon)
+    np.save(os.path.join(path_1pc, "biadj_mat_1pc.npy"), biadj_mat_1pc)
 
     # define VAE training and validation sample
     print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Preparing training and validation data for VAE")
@@ -123,5 +131,8 @@ def pipeline_real(dataset, heuristic, method, alpha, dof, dof_method, path, seed
     valid_loader = load_dataset_real(valid_samples, batch_size)
 
     # perform vae training
-    biadj_mat_1pc = np.load(os.path.join(path, "biadj_mat_1pc.npy"))
+    biadj_mat = np.load(os.path.join(path, "biadj_mat.npy"))
+    run_vae_suite(biadj_mat, train_loader, valid_loader, path, seed)
+
+    biadj_mat_1pc = np.load(os.path.join(path_1pc, "biadj_mat_1pc.npy"))
     run_vae_suite(biadj_mat_1pc, train_loader, valid_loader, path, seed)

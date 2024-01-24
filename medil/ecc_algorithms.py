@@ -264,7 +264,8 @@ def add_isolated_verts(cover):
 def find_heuristic_1pc(graph):
     num_meas = len(graph)
 
-    nx_graph = nx.from_numpy_array(graph, edge_attr=None)
+    # nx_graph = nx.from_numpy_array(graph, edge_attr=None)
+    nx_graph = nx.from_numpy_array(graph)
     indep_set = list(nx.approximation.maximum_independent_set(nx_graph))
 
     num_latents = len(indep_set)

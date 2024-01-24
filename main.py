@@ -77,17 +77,15 @@ def main_real(dataset_name, parent_path):
 
     # real dataset
     exp_path = os.path.join(parent_path, f"{dataset_name}")
-    if not os.path.isdir(exp_path):
-        os.mkdir(exp_path)
     run_real(dataset_name, num_samps_real, heuristic, method, alpha, dof, dof_method, exp_path, seed=0)
-
-
-# if __name__ == "__main__":
-#     parent_path = "/Volumes/SanDisk_2T/MeDIL/data/dataset"
-#     dataset_name = "tumors"
-#     main_real(dataset_name, parent_path)
 
 
 if __name__ == "__main__":
     parent_path = "/Volumes/SanDisk_2T/MeDIL/data/experiments"
-    main_random(parent_path, run=11)
+    dataset_name = "tcga"
+    main_real(dataset_name, parent_path)
+
+
+# if __name__ == "__main__":
+#     parent_path = "/Volumes/SanDisk_2T/MeDIL/data/experiments"
+#     main_random(parent_path, run=11)
