@@ -23,4 +23,5 @@ setup(
         "vis": ["matplotlib", "networkx"],
         "all": ["dcor", "torch", "matplotlib", "networkx"],
     },
+    scripts=["scripts/factor_analysis.py"],
 )
