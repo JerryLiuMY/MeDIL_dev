@@ -4,7 +4,7 @@ from sklearn.preprocessing import StandardScaler
 from gloabl_settings import DATA_PATH
 from exp.pipeline import pipeline_graph
 from exp.pipeline import pipeline_real
-from exp.examples import rand_biadj_mat_list
+# from exp.examples import rand_biadj_mat_list
 from datetime import datetime
 import pandas as pd
 import os
