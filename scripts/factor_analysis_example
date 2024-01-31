@@ -11,7 +11,7 @@ from sklearn.preprocessing import StandardScaler
 from exp.pipeline import pipeline_real
 
 
-def run_ncfa(data_path):
+def run_ncfa(path, data_path):
     # (dataset_name, num_samps_real, heuristic, method, alpha, dof, dof_method, exp_path, seed):
     """Run MeDIL on real dataset
     Parameters
@@ -39,18 +39,21 @@ def run_ncfa(data_path):
         sc.fit_transform(valid_df), valid_df.index, valid_df.columns
     ).values
 
-    dataset_key = "factor_analysis"
-
-    dataset_train_sub = dataset_train[:, dataset_key]
-    dataset_valid_sub = dataset_valid[:, dataset_key]
-    dataset = [dataset_train_sub, dataset_valid_sub]
+    dataset = [dataset_train, dataset_valid]
 
     print(
         f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Working on real data with "
         f"num_samps={len(train_df)}"
     )
     pipeline_real(
-        dataset, heuristic, method, alpha, dof, dof_method, exp_path, seed=seed
+        dataset,
+        heuristic=True,
+        method="xicor",
+        alpha=0.05,
+        dof=500,
+        dof_method="uniform",
+        path=path,
+        seed=0,
     )
 
 
@@ -74,4 +77,4 @@ if __name__ == "__main__":
             c.perform()
             c.close()
 
-    run_ncfa(data_path)
+    run_ncfa(path, data_path)
