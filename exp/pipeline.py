@@ -123,7 +123,9 @@ def pipeline_real(dataset, heuristic, method, alpha, dof, dof_method, path, seed
         pickle.dump(info, f)
 
     biadj_mat_1pc = find_heuristic_1pc(ud_graph_recon)
+    biadj_mat_1pc_redundant = assign_DoF(biadj_mat_1pc, deg_of_freedom=dof, method=dof_method)
     np.save(os.path.join(path_1pc, "biadj_mat_1pc.npy"), biadj_mat_1pc)
+    np.save(os.path.join(path_1pc, "biadj_mat_1pc_redundant.npy"), biadj_mat_1pc_redundant)
 
     # define VAE training and validation sample
     print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Preparing training and validation data for VAE")
@@ -131,11 +133,8 @@ def pipeline_real(dataset, heuristic, method, alpha, dof, dof_method, path, seed
     valid_loader = load_dataset_real(valid_samples, batch_size)
 
     # perform vae training
-    biadj_mat_recon = np.load(os.path.join(path, "biadj_mat_recon.npy"))
-    run_vae_suite(biadj_mat_recon, train_loader, valid_loader, path, seed)
-
     biadj_mat_redundant = np.load(os.path.join(path, "biadj_mat_redundant.npy"))
     run_vae_suite(biadj_mat_redundant, train_loader, valid_loader, path, seed)
 
-    biadj_mat_1pc = np.load(os.path.join(path_1pc, "biadj_mat_1pc.npy"))
-    run_vae_suite(biadj_mat_1pc, train_loader, valid_loader, path, seed)
+    biadj_mat_1pc_redundant = np.load(os.path.join(path_1pc, "biadj_mat_1pc_redundant.npy"))
+    run_vae_suite(biadj_mat_1pc_redundant, train_loader, valid_loader, path, seed)
