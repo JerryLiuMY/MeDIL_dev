@@ -28,7 +28,7 @@ def run_vae_oracle(biadj_mat, train_loader, valid_loader, path, seed):
         pickle.dump(error_true, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
-def run_vae_suite(biadj_mat_recon, train_loader, valid_loader, path, seed):
+def run_vae_suite(biadj_mat_recon, train_loader, valid_loader, path, seed, shuffle=False):
     """ Run training loop for exact VAE
     Parameters
     ----------
@@ -37,6 +37,7 @@ def run_vae_suite(biadj_mat_recon, train_loader, valid_loader, path, seed):
     valid_loader: loader for validation data
     path: path to save the experiments
     seed: random seed for the experiments
+    shuffle: whether to use shuffled graph
     """
 
     # train & validate heuristic MeDIL VAE
@@ -51,7 +52,13 @@ def run_vae_suite(biadj_mat_recon, train_loader, valid_loader, path, seed):
         pickle.dump(error_recon, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
     # train & validate vanilla VAE
-    biadj_mat_vanilla = np.ones((mh, nh))
+    if shuffle:
+        shuffle_idx = np.arange(mh)
+        np.random.shuffle(shuffle_idx)
+        biadj_mat_vanilla = biadj_mat_recon[shuffle_idx, :]
+    else:
+        biadj_mat_vanilla = np.ones((mh, nh))
+
     model_vanilla, loss_vanilla, error_vanilla = train_vae(
         mh, nh, biadj_mat_vanilla, train_loader, valid_loader, seed
     )
