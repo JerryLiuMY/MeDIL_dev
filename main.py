@@ -3,6 +3,7 @@ from exp.experiment import run_random
 from exp.experiment import run_real
 from exp.examples import num_samps_graph
 from exp.examples import num_samps_real
+import numpy as np
 import os
 
 
@@ -80,10 +81,35 @@ def main_real(dataset_name, parent_path):
     run_real(dataset_name, num_samps_real, heuristic, method, alpha, dof, dof_method, exp_path, seed=0)
 
 
+def main_real_ablation(dataset_name, parent_path):
+    """ Run MeDIL on the real dataset with ablation study
+    Parameters
+    ----------
+    dataset_name: name of the dataset
+    parent_path: parent path for the experiments
+    """
+
+    # argument for estimation
+    alpha = 0.05
+    heuristic = True
+    method = "dcov_fast"
+
+    # argument for architecture
+    print(np.logspace(2.41, 4, num=30).astype(int)[28:])
+    dofs = np.logspace(2.41, 4, num=30).astype(int)[28:]
+    dof_method = "uniform"
+
+    # real dataset
+    for dof in dofs:
+        exp_path = os.path.join(parent_path, f"{dataset_name}_dof={dof}")
+        run_real(dataset_name, num_samps_real, heuristic, method, alpha, dof, dof_method, exp_path, seed=0)
+
+
 if __name__ == "__main__":
     parent_path = "/Volumes/SanDisk_2T/MeDIL/data/experiments"
     dataset_name = "tcga"
-    main_real(dataset_name, parent_path)
+    # main_real(dataset_name, parent_path)
+    main_real_ablation(dataset_name, parent_path)
 
 
 # if __name__ == "__main__":

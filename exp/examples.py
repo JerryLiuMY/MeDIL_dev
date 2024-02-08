@@ -60,17 +60,17 @@ fixed_biadj_mat_list = [
 ]
 
 
-# # random graph
-# num_runs = 10
-# num_obs = 10
-# edge_prob_list = np.round(np.arange(0.1, 0.91, 0.1), 2)
-# rand_biadj_mat_list = {}
-#
-# for idx in range(num_runs):
-#     for p in edge_prob_list:
-#         print(f"Generating sample with idx={idx}, num_obs={num_obs}, and edge_prob={p}")
-#         random.seed(idx)
-#         rand_biadj_mat_list[f"{idx}_{num_obs}_{p}"] = rand_biadj_mat(num_obs=num_obs, edge_prob=p)
+# random graph
+num_runs = 10
+num_obs = 10
+edge_prob_list = np.round(np.arange(0.1, 0.91, 0.1), 2)
+rand_biadj_mat_list = {}
+
+for idx in range(num_runs):
+    for p in edge_prob_list:
+        print(f"Generating sample with idx={idx}, num_obs={num_obs}, and edge_prob={p}")
+        random.seed(idx)
+        rand_biadj_mat_list[f"{idx}_{num_obs}_{p}"] = rand_biadj_mat(num_obs=num_obs, edge_prob=p)
 
 
 # tcga dataset
