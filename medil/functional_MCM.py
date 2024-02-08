@@ -7,6 +7,7 @@ from gues.grues import InputData as rand_walker
 
 from .ecc_algorithms import find_heuristic_clique_cover as find_h
 from .ecc_algorithms import find_clique_min_cover as find_cm
+from .ecc_algorithms import find_heuristic_1pc as find_1pc
 
 
 def rand_biadj_mat(num_obs, edge_prob, rng=default_rng(0)):
@@ -32,7 +33,7 @@ def rand_biadj_mat(num_obs, edge_prob, rng=default_rng(0)):
     np.fill_diagonal(udg, True)
 
     # find latent connections (minimum edge clique cover)
-    biadj_mat = find_h(udg)
+    biadj_mat = find_1pc(udg)
     biadj_mat = biadj_mat.astype(bool)
 
     return biadj_mat

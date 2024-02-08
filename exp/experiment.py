@@ -10,8 +10,18 @@ import pandas as pd
 import os
 
 
-def run_fixed(num_samps_graph, data_type, heuristic, method, alpha, dof, dof_method, exp_path, seed):
-    """ Run MeDIL on the fixed graphs
+def run_fixed(
+    num_samps_graph,
+    data_type,
+    heuristic,
+    method,
+    alpha,
+    dof,
+    dof_method,
+    exp_path,
+    seed,
+):
+    """Run MeDIL on the fixed graphs
     Parameters
     ----------
     num_samps_graph: number of samples for graph
@@ -32,15 +42,36 @@ def run_fixed(num_samps_graph, data_type, heuristic, method, alpha, dof, dof_met
         if not os.path.isdir(graph_path):
             os.mkdir(graph_path)
 
-        print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Working on graph {graph_idx} with "
-              f"num_samps={num_samps_graph}")
+        print(
+            f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Working on graph {graph_idx} with "
+            f"num_samps={num_samps_graph}"
+        )
         pipeline_graph(
-            biadj_mat, num_samps_graph, data_type, heuristic, method, alpha, dof, dof_method, graph_path, seed=seed
+            biadj_mat,
+            num_samps_graph,
+            data_type,
+            heuristic,
+            method,
+            alpha,
+            dof,
+            dof_method,
+            graph_path,
+            seed=seed,
         )
 
 
-def run_random(num_samps_graph, data_type, heuristic, method, alpha, dof, dof_method, exp_path, seed):
-    """ Run MeDIL on the random graphs
+def run_random(
+    num_samps_graph,
+    data_type,
+    heuristic,
+    method,
+    alpha,
+    dof,
+    dof_method,
+    exp_path,
+    seed,
+):
+    """Run MeDIL on the random graphs
     Parameters
     ----------
     num_samps_graph: number of samples for graph
@@ -60,19 +91,40 @@ def run_random(num_samps_graph, data_type, heuristic, method, alpha, dof, dof_me
         if not os.path.isdir(graph_path):
             os.mkdir(graph_path)
 
-        print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Working on graph {idx} with "
-              f"num_samps={num_samps_graph}, n={n}, p={p}")
+        print(
+            f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Working on graph {idx} with "
+            f"num_samps={num_samps_graph}, n={n}, p={p}"
+        )
         folder_name = f"n={n}_p={p}"
         folder_path = os.path.join(graph_path, folder_name)
         if not os.path.isdir(folder_path):
             os.mkdir(folder_path)
             pipeline_graph(
-                biadj_mat, num_samps_graph, data_type, heuristic, method, alpha, dof, dof_method, folder_path, seed=seed
+                biadj_mat,
+                num_samps_graph,
+                data_type,
+                heuristic,
+                method,
+                alpha,
+                dof,
+                dof_method,
+                folder_path,
+                seed=seed,
             )
 
 
-def run_real(dataset_name, num_samps_real, heuristic, method, alpha, dof, dof_method, exp_path, seed):
-    """ Run MeDIL on real dataset
+def run_real(
+    dataset_name,
+    num_samps_real,
+    heuristic,
+    method,
+    alpha,
+    dof,
+    dof_method,
+    exp_path,
+    seed,
+):
+    """Run MeDIL on real dataset
     Parameters
     ----------
     dataset_name: name of dataset
@@ -90,8 +142,12 @@ def run_real(dataset_name, num_samps_real, heuristic, method, alpha, dof, dof_me
     sc = StandardScaler()
     dataset_train = pd.read_csv(os.path.join(dataset_path, f"{dataset_name}_train.csv"))
     dataset_valid = pd.read_csv(os.path.join(dataset_path, f"{dataset_name}_valid.csv"))
-    dataset_train = pd.DataFrame(sc.fit_transform(dataset_train), dataset_train.index, dataset_train.columns).values
-    dataset_valid = pd.DataFrame(sc.fit_transform(dataset_valid), dataset_valid.index, dataset_valid.columns).values
+    dataset_train = pd.DataFrame(
+        sc.fit_transform(dataset_train), dataset_train.index, dataset_train.columns
+    ).values
+    dataset_valid = pd.DataFrame(
+        sc.fit_transform(dataset_valid), dataset_valid.index, dataset_valid.columns
+    ).values
 
     if dataset_name == "tcga":
         dataset_key = tcga_key
@@ -106,6 +162,10 @@ def run_real(dataset_name, num_samps_real, heuristic, method, alpha, dof, dof_me
     dataset_valid_sub = dataset_valid[:, dataset_key]
     dataset = [dataset_train_sub, dataset_valid_sub]
 
-    print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Working on real data with "
-          f"num_samps={num_samps_real}")
-    pipeline_real(dataset, heuristic, method, alpha, dof, dof_method, exp_path, seed=seed)
+    print(
+        f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Working on real data with "
+        f"num_samps={num_samps_real}"
+    )
+    pipeline_real(
+        dataset, heuristic, method, alpha, dof, dof_method, exp_path, seed=seed
+    )

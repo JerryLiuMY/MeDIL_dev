@@ -6,11 +6,22 @@ from graph_est.utils import biadj_to_adj
 import numpy as np
 import torch
 from rpy2.robjects import numpy2ri
+
 numpy2ri.activate()
 
 
+def seed_worker(worker_id):
+    worker_seed = torch.initial_seed() % 2**32
+    numpy.random.seed(worker_seed)
+    random.seed(worker_seed)
+
+
+g = torch.Generator()
+g.manual_seed(0)
+
+
 def load_dataset(samples, num_latent, batch_size):
-    """ Generate dataset given the adjacency matrix, number of samples and batch size
+    """Generate dataset given the adjacency matrix, number of samples and batch size
     Parameters
     ----------
     samples: samples from the MCM
@@ -25,13 +36,19 @@ def load_dataset(samples, num_latent, batch_size):
     samples_x = samples[:, num_latent:].astype(np.float32)
     samples_z = samples[:, :num_latent].astype(np.float32)
     dataset = TensorDataset(torch.tensor(samples_x), torch.tensor(samples_z))
-    data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
+    data_loader = DataLoader(
+        dataset,
+        batch_size=batch_size,
+        shuffle=False,
+        worker_init_fn=seed_worker,
+        generator=g,
+    )
 
     return data_loader
 
 
 def load_dataset_real(samples, batch_size):
-    """ Generate dataset given the adjacency matrix, number of samples and batch size
+    """Generate dataset given the adjacency matrix, number of samples and batch size
     Parameters
     ----------
     samples: samples from the MCM
@@ -45,7 +62,13 @@ def load_dataset_real(samples, batch_size):
     samples_x = samples.astype(np.float32)
     samples_z = np.empty(shape=(samples_x.shape[0], 0)).astype(np.float32)
     dataset = TensorDataset(torch.tensor(samples_x), torch.tensor(samples_z))
-    data_loader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
+    data_loader = DataLoader(
+        dataset,
+        batch_size=batch_size,
+        shuffle=False,
+        worker_init_fn=seed_worker,
+        generator=g,
+    )
 
     return data_loader
 

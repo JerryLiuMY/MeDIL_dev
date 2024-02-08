@@ -4,9 +4,9 @@ from gues.grues import InputData as rand_walker
 
 rng = np.random.default_rng(0)
 
-mnist_udg = np.load("project_udgs/mnist_udg-0.001.npy")
-tcga_udg = np.load("project_udgs/tcga_udg-0.05.npy")
-tumor_udg = np.load("project_udgs/tumor_udg-0.05.npy")
+# mnist_udg = np.load("project_udgs/mnist_udg-0.001.npy")
+# tcga_udg = np.load("project_udgs/tcga_udg-0.05.npy")
+# tumor_udg = np.load("project_udgs/tumor_udg-0.05.npy")
 
 
 def rm_project(udg):

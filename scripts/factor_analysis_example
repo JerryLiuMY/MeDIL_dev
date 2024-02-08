@@ -1,14 +1,32 @@
 #!python3
 import os
+import sys
 import warnings
 from importlib.metadata import version
 from datetime import datetime
+import pickle
 
 import pycurl
 import pandas as pd
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler as sc
+import torch
+import seaborn as sns
+import matplotlib.pyplot as plt
+from matplotlib.colors import LinearSegmentedColormap
+import numpy as np
 
-from exp.pipeline import pipeline_real
+from medil.functional_MCM import rand_biadj_mat, sample_from_minMCM
+from exp.pipeline import pipeline_real, pipeline_ablation
+
+
+class HiddenPrints:
+    def __enter__(self):
+        self._original_stdout = sys.stdout
+        sys.stdout = open(os.devnull, "w")
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        sys.stdout.close()
+        sys.stdout = self._original_stdout
 
 
 def run_ncfa(path, data_path):
@@ -27,16 +45,14 @@ def run_ncfa(path, data_path):
     seed: random seed for the experiments
     """
     raw_df = pd.read_csv(data_path, sep="\t ", header=None).T
-    valid_df = raw_df.sample(frac=0.3)
-    train_df = raw_df.drop(valid_df)
-
-    sc = StandardScaler()
+    valid_df = raw_df.sample(frac=0.3, random_state=0)
+    train_df = raw_df.drop(valid_df.index)
 
     dataset_train = pd.DataFrame(
-        sc.fit_transform(train_df), train_df.index, train_df.columns
+        sc().fit_transform(train_df), train_df.index, train_df.columns
     ).values
     dataset_valid = pd.DataFrame(
-        sc.fit_transform(valid_df), valid_df.index, valid_df.columns
+        sc().fit_transform(valid_df), valid_df.index, valid_df.columns
     ).values
 
     dataset = [dataset_train, dataset_valid]
@@ -45,16 +61,211 @@ def run_ncfa(path, data_path):
         f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Working on real data with "
         f"num_samps={len(train_df)}"
     )
+    torch.manual_seed(0)
+    torch.use_deterministic_algorithms(True)
     pipeline_real(
         dataset,
         heuristic=True,
         method="xicor",
         alpha=0.05,
-        dof=500,
+        dof=250,
         dof_method="uniform",
         path=path,
         seed=0,
     )
+
+
+def plot_factors(factor_path, data_path):
+    biadj_mat = np.load(factor_path)
+
+    scale = 2.5
+    fig, ax = plt.subplots(figsize=(scale * 5, scale))
+
+    colors = ["lightgray", "black"]
+    cmap = LinearSegmentedColormap.from_list("Custom", colors, len(colors))
+
+    g = sns.heatmap(
+        biadj_mat,
+        ax=ax,
+        cbar_kws=dict(location="right", shrink=0.5, pad=0.01),
+        cmap=cmap,
+    )
+    g.set(
+        ylabel="factors",
+        xlabel="genes",
+        yticks=range(5, 26, 5),
+        yticklabels=tuple((str(label) for label in range(5, 26, 5))),
+        xticks=range(50, 201, 50),
+        xticklabels=tuple((str(label) for label in range(50, 201, 50))),
+    )
+    g.tick_params("both", rotation=0)
+
+    colorbar = ax.collections[0].colorbar
+    colorbar.set_ticks([0.25, 0.75])
+    colorbar.set_ticklabels(["0", "1"])
+
+    g.figure.tight_layout()
+    g.figure.savefig(f"../reproduce_ncfa_results/factors.pdf")
+    g.figure.clf()
+    # run `pdfcrop --margins '0 0 0 0' factors.pdf
+    # factors-cropped.pdf` to remove weird whitespace at top
+
+
+def ablation(path, data_path, dofs, seeds):
+    # load and format data
+    raw_df = pd.read_csv(data_path, sep="\t ", header=None).T
+    valid_df = raw_df.sample(frac=0.3, random_state=0)
+    train_df = raw_df.drop(valid_df.index)
+    dataset_train = pd.DataFrame(
+        sc().fit_transform(train_df), train_df.index, train_df.columns
+    ).values
+    dataset_valid = pd.DataFrame(
+        sc().fit_transform(valid_df), valid_df.index, valid_df.columns
+    ).values
+    dataset = [dataset_train, dataset_valid]
+
+    # load biadj_mat
+    biadj_mat = np.load(
+        "/home/alex/projects/cfa_code/fa_results-success/_1pc/biadj_mat_1pc.npy"
+    )
+
+    # run ablation study for different DoF
+    print(
+        f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Working on ablation study with "
+        f"num_samps={len(train_df)}"
+    )
+    torch.manual_seed(0)
+    torch.use_deterministic_algorithms(True)
+    for seed in seeds:
+        print(f"Run number {seed+1}:")
+        for dof in dofs:
+            print(f"\trunning DoF={dof}...")
+            with HiddenPrints():
+                pipeline_ablation(dataset, biadj_mat, dof, path, seed)
+    print("Done!")
+
+
+def sim_ablation(path, dofs, seeds):
+    # generate graph and data
+    true_biadj = rand_biadj_mat(50, 0.3)
+    num_lat = len(true_biadj)
+    data, _ = sample_from_minMCM(true_biadj[:, num_lat:], 500)
+
+    # format data for VAE
+    raw_df = pd.DataFrame(data)
+    valid_df = raw_df.sample(frac=0.3, random_state=0)
+    train_df = raw_df.drop(valid_df.index)
+    dataset_train = pd.DataFrame(
+        sc().fit_transform(train_df), train_df.index, train_df.columns
+    ).values
+    dataset_valid = pd.DataFrame(
+        sc().fit_transform(valid_df), valid_df.index, valid_df.columns
+    ).values
+    dataset = [dataset_train, dataset_valid]
+
+    # run ablation study for different DoF
+    print(
+        f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Working on ablation study with "
+        f"num_samps={len(train_df)}"
+    )
+    torch.manual_seed(0)
+    torch.use_deterministic_algorithms(True)
+    for seed in seeds:
+        print(f"Run number {seed+1}:")
+        for dof in dofs:
+            print(f"\trunning DoF={dof}...")
+            with HiddenPrints():
+                pipeline_ablation(dataset, true_biadj, dof, path, seed)
+    print("Done!")
+
+
+def sub_ablation(path, data_path, dofs, seeds):
+    # load biadj_mat
+    biadj_mat = np.load(
+        "/home/alex/projects/cfa_code/fa_results-success/_1pc/biadj_mat_1pc.npy"
+    )
+
+    # subsample latents
+    biadj_mat = biadj_mat[-3:]
+
+    # load and format data
+    raw_df = pd.read_csv(data_path, sep="\t ", header=None).T
+
+    # subsample data and measurement vars
+    sub_idx = np.flatnonzero(biadj_mat.sum(0))
+    raw_df = raw_df[sub_idx]
+    biadj_mat = biadj_mat[:, sub_idx]
+
+    valid_df = raw_df.sample(frac=0.3, random_state=0)
+    train_df = raw_df.drop(valid_df.index)
+    dataset_train = pd.DataFrame(
+        sc().fit_transform(train_df), train_df.index, train_df.columns
+    ).values
+    dataset_valid = pd.DataFrame(
+        sc().fit_transform(valid_df), valid_df.index, valid_df.columns
+    ).values
+    dataset = [dataset_train, dataset_valid]
+
+    # run ablation study for different DoF
+    print(
+        f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} Working on ablation study with "
+        f"num_samps={len(train_df)}"
+    )
+    torch.manual_seed(0)
+    torch.use_deterministic_algorithms(True)
+    for seed in seeds:
+        print(f"Run number {seed+1}:")
+        for dof in dofs:
+            print(f"\trunning DoF={dof}...")
+            with HiddenPrints():
+                pipeline_ablation(dataset, biadj_mat, dof, path, seed)
+    print("Done!")
+
+
+def plot_ablation(path, dofs, seeds):
+    # load results
+    results = pd.DataFrame(
+        columns=["seed", "latent degrees of freedom", "loss", "loss type"]
+    )
+    for seed in seeds:
+        train = []
+        valid = []
+        for dof in dofs:
+            with open(f"{path}ablation/dof={dof}_run={seed}/loss_recon.pkl", "rb") as f:
+                loss = pickle.load(f)
+            train.append(loss[0].min())
+            valid.append(loss[1].min())
+        train_df = pd.DataFrame(
+            {
+                "seed": seed,
+                "latent degrees of freedom": dofs,
+                "loss": train,
+                "loss type": "training",
+            }
+        )
+        valid_df = pd.DataFrame(
+            {
+                "seed": seed,
+                "latent degrees of freedom": dofs,
+                "loss": valid,
+                "loss type": "validation",
+            }
+        )
+        results = pd.concat([results, train_df, valid_df], ignore_index=True)
+    results.to_csv(f"{path}ablation.csv")
+    g = sns.lineplot(
+        results,
+        x="latent degrees of freedom",
+        y="loss",
+        hue="loss type",
+        estimator=np.min,
+        errorbar="ci",
+    )
+    # plt.xscale("log")
+    # g.set_xticklabels(dof[:28])
+    g.figure.tight_layout()
+    g.figure.savefig(f"{path}ablation-min.png")
+    g.figure.clf()
 
 
 # script logic for CLI
@@ -66,15 +277,39 @@ if __name__ == "__main__":
     # download data unless it's already been downloaded
     path = "reproduce_ncfa_results/"
     data_path = path + "dataset.txt"
-    if not os.path.exists(data_path):
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-        print("Downloading data set...")
-        url = "http://www2.stat.duke.edu/~mw/mwsoftware/BFRM/Example1/dataset.txt"
-        with open(data_path, "wb") as f:
-            c = pycurl.Curl()
-            c.setopt(c.URL, url)
-            c.setopt(c.WRITEDATA, f)
-            c.perform()
-            c.close()
+    # if not os.path.exists(data_path):
+    #     os.makedirs(os.path.dirname(path), exist_ok=True)
+    #     print("Downloading data set...")
+    #     url = "http://www2.stat.duke.edu/~mw/mwsoftware/BFRM/Example1/dataset.txt"
+    #     with open(data_path, "wb") as f:
+    #         c = pycurl.Curl()
+    #         c.setopt(c.URL, url)
+    #         c.setopt(c.WRITEDATA, f)
+    #         c.perform()
+    #         c.close()
 
-    run_ncfa(path, data_path)
+    # run_ncfa(path, data_path)
+
+    # factor_path = (
+    #     "/home/alex/projects/cfa_code/fa_results-success/_1pc/biadj_mat_1pc.npy"
+    # )
+    # names_path = ""
+    # plot_factors(factor_path, names_path)
+
+    ### FA data results
+    # dofs = range(30, 301, 3)
+    # seeds = range(10)
+    # ablation(path + "ablation/", data_path, dofs, seeds)
+    # plot_ablation(path, dofs, seeds)
+
+    ### Simulated data results
+    # dofs = range(10, 101, 5)
+    # seeds = range(10)
+    # sim_ablation(path + "sim_ablation/", dofs, seeds)
+    # plot_ablation(path + "sim_", dofs, seeds)
+
+    ### Subsampled FA data results
+    # dofs = range(30, 301, 3)
+    # seeds = range(10)
+    # sub_ablation(path + "sub_ablation/", data_path, dofs, seeds)
+    # plot_ablation(path + "sub_", dofs, seeds)
