@@ -111,6 +111,23 @@ def plot_factors(factor_path, data_path):
     # factors-cropped.pdf` to remove weird whitespace at top
 
 
+def table_factors(factor_path, names_path):
+    biadj_mat = np.load(factor_path)
+
+    gene_names = pd.read_csv(names_path, header=None)
+    l = gene_names[0].to_list()
+    gene_names = np.array([s.strip() for s in l])
+
+    factors = {f"Factor {idx}": gene_names[mask] for idx, mask in enumerate(biadj_mat)}
+    for factor in factors:
+        factor.sort()
+
+    table = pd.DataFrame({"factor": factors.keys(), "genes": factors.values()})
+    table.to_csv(f"{path}fa_table.csv", index=False)
+
+    # tff3_containing = {f: factors[f] for f in factors.keys() if "TFF3" in factors[f]}
+
+
 def ablation(path, data_path, dofs, seeds):
     # load and format data
     raw_df = pd.read_csv(data_path, sep="\t ", header=None).T
@@ -261,10 +278,11 @@ def plot_ablation(path, dofs, seeds):
         estimator=np.min,
         errorbar="ci",
     )
+    g.set(xlabel="latent degrees of freedom ($\lambda$)")
     # plt.xscale("log")
     # g.set_xticklabels(dof[:28])
     g.figure.tight_layout()
-    g.figure.savefig(f"{path}ablation-min.png")
+    g.figure.savefig(f"{path}ablation-min.pdf")
     g.figure.clf()
 
 
@@ -290,26 +308,29 @@ if __name__ == "__main__":
 
     # run_ncfa(path, data_path)
 
-    # factor_path = (
-    #     "/home/alex/projects/cfa_code/fa_results-success/_1pc/biadj_mat_1pc.npy"
-    # )
+    factor_path = (
+        "/home/alex/projects/cfa_code/fa_results-success/_1pc/biadj_mat_1pc.npy"
+    )
     # names_path = ""
     # plot_factors(factor_path, names_path)
 
     ### FA data results
-    # dofs = range(30, 301, 3)
-    # seeds = range(10)
+    dofs = range(30, 301, 3)
+    # seeds = range(16, 20)
     # ablation(path + "ablation/", data_path, dofs, seeds)
-    # plot_ablation(path, dofs, seeds)
+    plot_ablation(path, dofs, seeds=range(16))
 
     ### Simulated data results
-    # dofs = range(10, 101, 5)
-    # seeds = range(10)
+    dofs = range(10, 101, 5)
+    seeds = range(10)
     # sim_ablation(path + "sim_ablation/", dofs, seeds)
-    # plot_ablation(path + "sim_", dofs, seeds)
+    plot_ablation(path + "sim_", dofs, seeds)
 
     ### Subsampled FA data results
-    # dofs = range(30, 301, 3)
-    # seeds = range(10)
-    # sub_ablation(path + "sub_ablation/", data_path, dofs, seeds)
-    # plot_ablation(path + "sub_", dofs, seeds)
+    dofs = range(30, 301, 3)
+    # # seeds = range(20, 30)
+    # # sub_ablation(path + "sub_ablation/", data_path, dofs, seeds)
+    plot_ablation(path + "sub_", dofs, seeds=range(30))
+
+    ### Factor table
+    # names_path = f"{path}GeneNames.txt"
